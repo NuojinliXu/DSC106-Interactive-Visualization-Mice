@@ -314,14 +314,17 @@ svg.append("g")
 
     if (text === "Female") {
       svg.selectAll(".femaleCorrelation")
+        .each(function() { d3.select(this).raise(); }) // bring to front
         .transition().duration(200)
         .style("opacity", 1);
 
       svg.selectAll(".maleCorrelation")
         .transition().duration(200)
         .style("opacity", 0);
+
     } else if (text === "Male") {
       svg.selectAll(".maleCorrelation")
+        .each(function() { d3.select(this).raise(); }) // bring to front
         .transition().duration(200)
         .style("opacity", 1);
 
@@ -331,14 +334,11 @@ svg.append("g")
     }
   })
 
-
   .on("mouseout", function() {
     svg.selectAll(".femaleCorrelation, .maleCorrelation")
       .transition().duration(200)
       .style("opacity", 0.6);
   });
-
-
 
 //curve
 const femaleTrendLine = d3.line()
@@ -351,7 +351,7 @@ const maleTrendLine = d3.line()
   .y(d => yScale(d))
   .curve(d3.curveBasis);
 
-// Draw a trend line for women
+// Draw a trend line for female mice
 svg.append("path")
   .datum(femaleDailyCorrelations)
   .attr("class", "femaleTrendLine") 
@@ -369,41 +369,50 @@ svg.append("path")
   .attr("stroke-width", 2)
   .attr("d", maleTrendLine)
   .style("opacity", 0.7);
-
 }
-
 
 function updateVisibility() {
   const showFemale = document.getElementById("toggleFemale").checked;
   const showMale = document.getElementById("toggleMale").checked;
 
-  console.log("Show Female:", showFemale, "Show Male:", showMale);
+  console.log("Show Female Trendline:", showFemale, "Show Male Trendline:", showMale);
   
   const svg = d3.select("#chart svg");
 
+  // bring to front
+  if (showFemale) {
+    svg.selectAll(".femaleCorrelation").each(function() {
+      d3.select(this).raise();
+    });
+  }
+
   // Control female data points and trend lines
   svg.selectAll(".femaleCorrelation")
-    .transition().duration(300)
+    .transition().duration(200)
     .style("opacity", showFemale ? 1 : 0.6); 
 
   svg.selectAll(".femaleTrendLine")
-    .transition().duration(300)
+    .transition().duration(200)
     .style("opacity", showFemale ? 0.7 : 0); 
+
+    // bring to front
+  if (showMale) {
+    svg.selectAll(".maleCorrelation").each(function() {
+      d3.select(this).raise();
+    });
+  }
 
   // Control male data points and trend lines
   svg.selectAll(".maleCorrelation")
-    .transition().duration(300)
+    .transition().duration(200)
     .style("opacity", showMale ? 1 : 0.6); 
 
   svg.selectAll(".maleTrendLine")
-    .transition().duration(300)
+    .transition().duration(200)
     .style("opacity", showMale ? 0.7 : 0); 
 
   console.log("Updated visibility");
 }
-
-
-
 
 document.addEventListener("DOMContentLoaded", async () => {
   tooltip = d3.select("body").append("div")
