@@ -414,6 +414,51 @@ function updateVisibility() {
   console.log("Updated visibility");
 }
 
+function drawNewPlot(gender) {
+  console.log("Adding new plot for:", gender);
+  d3.select("#secondary-chart").remove();
+
+  // Get dimensions of the original chart
+  const originalChart = d3.select("#chart svg").node().getBoundingClientRect();
+  const width = originalChart.width;
+  const height = originalChart.height;
+
+  // Append new SVG below the original chart
+  const newSvg = d3.select("#chart-container")
+    .append("svg")
+    .attr("id", "secondary-chart")
+    .attr("width", width)
+    .attr("height", height)
+    .style("margin-top", "20px");
+
+  // Generate example data for the new plot
+  const newData = d3.range(10).map(d => ({
+    x: d,
+    y: gender === "female" ? d + Math.random() * 2 : d * 1.5 + Math.random() * 3
+  }));
+
+  const xScale = d3.scaleLinear().domain([0, 10]).range([50, width - 50]);
+  const yScale = d3.scaleLinear().domain([0, 20]).range([height - 50, 50]);
+
+  // Draw axes
+  newSvg.append("g")
+    .attr("transform", `translate(0, ${height - 50})`)
+    .call(d3.axisBottom(xScale));
+
+  newSvg.append("g")
+    .attr("transform", `translate(50, 0)`)
+    .call(d3.axisLeft(yScale));
+
+  // Plot new points
+  newSvg.selectAll("circle")
+    .data(newData)
+    .enter().append("circle")
+    .attr("cx", d => xScale(d.x))
+    .attr("cy", d => yScale(d.y))
+    .attr("r", 5)
+    .attr("fill", gender === "female" ? "red" : "blue");
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   tooltip = d3.select("body").append("div")
       .attr("class", "tooltip")
@@ -426,11 +471,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await createCorrelationPlot(); 
 
+  document.getElementById("toggleFemale").checked = false;
+  document.getElementById("toggleMale").checked = false;
+  updateVisibility();
+
   document.getElementById("toggleFemale")?.addEventListener("change", updateVisibility);
   document.getElementById("toggleMale")?.addEventListener("change", updateVisibility);
-
 }); 
-
-
-
-
