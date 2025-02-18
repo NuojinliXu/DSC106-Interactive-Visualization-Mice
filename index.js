@@ -1,171 +1,186 @@
+
+let femaleTempData = [];
+let maleTempData = [];
+let femaleActData = [];
+let maleActData = [];
+let tooltip;
+
 async function loadTemperatureData(filenames, labels) {
-    let data = [];
-  
-    for (let fileIndex = 0; fileIndex < filenames.length; fileIndex++) {
-      const filename = filenames[fileIndex];
-      const subjectPrefix = labels[fileIndex];
-      const fileData = await d3.csv(`data/${filename}`, (row, i) => {
-        if (!data[i]) {
-          data[i] = { minute: i + 1 };
-        }
-  
-        for (let j = 1; j <= 13; j++) {
-          data[i][`${subjectPrefix}${j}`] = Number(row[`${subjectPrefix}${j}`]);
-        }
-        return data[i];
-      });
-    }
-    return data;
+  let data = [];
+
+  for (let fileIndex = 0; fileIndex < filenames.length; fileIndex++) {
+    const filename = filenames[fileIndex];
+    const subjectPrefix = labels[fileIndex];
+    const fileData = await d3.csv(`data/${filename}`, (row, i) => {
+      if (!data[i]) {
+        data[i] = { minute: i + 1 };
+      }
+
+      for (let j = 1; j <= 13; j++) {
+        data[i][`${subjectPrefix}${j}`] = Number(row[`${subjectPrefix}${j}`]);
+      }
+      return data[i];
+    });
+  }
+  return data;
 }
 
 async function loadActivityData(filenames, labels) {
-    let data = [];
-  
-    for (let fileIndex = 0; fileIndex < filenames.length; fileIndex++) {
-      const filename = filenames[fileIndex];
-      const subjectPrefix = labels[fileIndex];
-      const fileData = await d3.csv(`data/${filename}`, (row, i) => {
-        if (!data[i]) {
-          data[i] = { minute: i + 1 };
-        }
-  
-        for (let j = 1; j <= 13; j++) {
-          data[i][`${subjectPrefix}${j}`] = Number(row[`${subjectPrefix}${j}`]);
-        }
-        return data[i];
-      });
-    }
-    return data;
+  let data = [];
+
+  for (let fileIndex = 0; fileIndex < filenames.length; fileIndex++) {
+    const filename = filenames[fileIndex];
+    const subjectPrefix = labels[fileIndex];
+    const fileData = await d3.csv(`data/${filename}`, (row, i) => {
+      if (!data[i]) {
+        data[i] = { minute: i + 1 };
+      }
+
+      for (let j = 1; j <= 13; j++) {
+        data[i][`${subjectPrefix}${j}`] = Number(row[`${subjectPrefix}${j}`]);
+      }
+      return data[i];
+    });
+  }
+  return data;
 }
 
 function smoothData(data, window_size) {
-  let smoothedData = [];
-  for (let i = 0; i < data.length; i++) {
-      const start = Math.max(0, i - Math.floor(window_size / 2));
-      const end = Math.min(data.length, i + Math.floor(window_size / 2) + 1);
-      const window = data.slice(start, end);
-      smoothedData.push(d3.mean(window));
-  }
-  return smoothedData;
+let smoothedData = [];
+for (let i = 0; i < data.length; i++) {
+    const start = Math.max(0, i - Math.floor(window_size / 2));
+    const end = Math.min(data.length, i + Math.floor(window_size / 2) + 1);
+    const window = data.slice(start, end);
+    smoothedData.push(d3.mean(window));
+}
+return smoothedData;
 }
 
 function pearsonCorrelation(x, y) {
-  const n = x.length;
-  const sumX = d3.sum(x);
-  const sumY = d3.sum(y);
-  const sumXY = d3.sum(x.map((xi, i) => xi * y[i]));
-  const sumX2 = d3.sum(x.map(xi => xi * xi));
-  const sumY2 = d3.sum(y.map(yi => yi * yi));
+const n = x.length;
+const sumX = d3.sum(x);
+const sumY = d3.sum(y);
+const sumXY = d3.sum(x.map((xi, i) => xi * y[i]));
+const sumX2 = d3.sum(x.map(xi => xi * xi));
+const sumY2 = d3.sum(y.map(yi => yi * yi));
 
-  const numerator = (n * sumXY) - (sumX * sumY);
-  const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+const numerator = (n * sumXY) - (sumX * sumY);
+const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
 
-  return numerator / denominator;
+return numerator / denominator;
 }
 
 function dailyCorrelation(correlations, numDays = 1) {
-  const minutesPerDay = 1440;
-  const dailyCorrelations = [];
+const minutesPerDay = 1440;
+const dailyCorrelations = [];
 
-  for (let day = 0; day < numDays; day++) {
-    const startIdx = day * minutesPerDay;
-    const endIdx = startIdx + minutesPerDay;
-    const dailyCorrs = correlations.slice(startIdx, endIdx);
+for (let day = 0; day < numDays; day++) {
+  const startIdx = day * minutesPerDay;
+  const endIdx = startIdx + minutesPerDay;
+  const dailyCorrs = correlations.slice(startIdx, endIdx);
 
-    const dailyAvg = d3.mean(dailyCorrs);
-    dailyCorrelations.push(dailyAvg);
-  }
-
-  return dailyCorrelations;
+  const dailyAvg = d3.mean(dailyCorrs);
+  dailyCorrelations.push(dailyAvg);
 }
+
+return dailyCorrelations;
+}
+
+let xScale;//加
 
 async function createCorrelationPlot() {
-  // load data
-  const tempFiles = ["Mouse_Data_Student_Copy.xlsx - Fem Temp.csv", "Mouse_Data_Student_Copy.xlsx - Male Temp.csv"];
-  const actFiles = ["Mouse_Data_Student_Copy.xlsx - Fem Act.csv", "Mouse_Data_Student_Copy.xlsx - Male Act.csv"];
-  const labels = ["f", "m"];
-  let temperatureData = await loadTemperatureData(tempFiles, labels);
-  console.log(temperatureData);
-  let activityData = await loadActivityData(actFiles, labels);
-  console.log(activityData);
+// load data
+const tempFiles = ["Mouse_Data_Student_Copy.xlsx - Fem Temp.csv", "Mouse_Data_Student_Copy.xlsx - Male Temp.csv"];
+const actFiles = ["Mouse_Data_Student_Copy.xlsx - Fem Act.csv", "Mouse_Data_Student_Copy.xlsx - Male Act.csv"];
+const labels = ["f", "m"];
+let temperatureData = await loadTemperatureData(tempFiles, labels);
+console.log(temperatureData);
+let activityData = await loadActivityData(actFiles, labels);
+console.log(activityData);
 
-  // separate data
-  const femaleTempData = [];
-  const maleTempData = [];
-  const femaleActData = [];
-  const maleActData = [];
+// separate data
+femaleTempData = [];
+maleTempData = [];
+femaleActData = [];
+maleActData = [];
 
-  for (let min = 0; min < 20160; min++) {
-    // data for current minute
-    let minuteTemps = temperatureData.slice(min, min + 1);
-    let minuteActs = activityData.slice(min, min + 1);
+for (let min = 0; min < 20160; min++) {
+  // data for current minute
+  let minuteTemps = temperatureData.slice(min, min + 1);
+  let minuteActs = activityData.slice(min, min + 1);
 
-    if (minuteTemps[0]) {
-      let femaleTempSlice = Object.values(minuteTemps[0]).slice(1, 14);
-      femaleTempData.push(femaleTempSlice);
-      let maleTempSlice = Object.values(minuteTemps[0]).slice(14, 26);
-      maleTempData.push(maleTempSlice);
+  if (minuteTemps[0]) {
+    let femaleTempSlice = Object.values(minuteTemps[0]).slice(1, 14);
+    femaleTempData.push(femaleTempSlice);
+    let maleTempSlice = Object.values(minuteTemps[0]).slice(14, 26);
+    maleTempData.push(maleTempSlice);
 
-      let femaleActSlice = Object.values(minuteActs[0]).slice(1, 14);
-      femaleActData.push(femaleActSlice);
-      let maleActSlice = Object.values(minuteActs[0]).slice(14, 26);
-      maleActData.push(maleActSlice);
-    }
+    let femaleActSlice = Object.values(minuteActs[0]).slice(1, 14);
+    femaleActData.push(femaleActSlice);
+    let maleActSlice = Object.values(minuteActs[0]).slice(14, 26);
+    maleActData.push(maleActSlice);
+  }
 }
 
-  console.log(femaleTempData.length, femaleActData.length, maleTempData.length, maleActData.length);
+console.log(femaleTempData.length, femaleActData.length, maleTempData.length, maleActData.length);
 
-  // initialize correlation arrays
-  let femaleDailyCorrelations = [];
-  let maleDailyCorrelations = [];
+// initialize correlation arrays
+let femaleDailyCorrelations = [];
+let maleDailyCorrelations = [];
 
-  // calculate daily correlations
-  for (let day = 0; day < 14; day++) {
-    const femaleTempForDay = femaleTempData.slice(day * 1440, (day + 1) * 1440);
-    const femaleActForDay = femaleActData.slice(day * 1440, (day + 1) * 1440);
-    const maleTempForDay = maleTempData.slice(day * 1440, (day + 1) * 1440);
-    const maleActForDay = maleActData.slice(day * 1440, (day + 1) * 1440);
-  
-    const femaleMinuteByMinuteCorrelation = femaleTempForDay.map((temp, i) => pearsonCorrelation(temp, femaleActForDay[i]));
-    const maleMinuteByMinuteCorrelation = maleTempForDay.map((temp, i) => pearsonCorrelation(temp, maleActForDay[i]));
-  
-    const femaleDailyCorrelation = d3.mean(femaleMinuteByMinuteCorrelation);
-    const maleDailyCorrelation = d3.mean(maleMinuteByMinuteCorrelation);
-  
-    console.log(`day ${day + 1} - female correlation: ${femaleDailyCorrelation}, male correlation: ${maleDailyCorrelation}`);
-  
-    femaleDailyCorrelations.push(femaleDailyCorrelation);
-    maleDailyCorrelations.push(maleDailyCorrelation);
-  }
+// calculate daily correlations
+for (let day = 0; day < 14; day++) {
+  const femaleTempForDay = femaleTempData.slice(day * 1440, (day + 1) * 1440);
+  const femaleActForDay = femaleActData.slice(day * 1440, (day + 1) * 1440);
+  const maleTempForDay = maleTempData.slice(day * 1440, (day + 1) * 1440);
+  const maleActForDay = maleActData.slice(day * 1440, (day + 1) * 1440);
 
-  // create svg
-  const margin = { top: 50, right: 50, bottom: 100, left: 50 };
-  const width = 1000 - margin.left - margin.right;
-  const height = 500 - margin.top - margin.bottom;
- 
-  const svg = d3.select("#chart").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
- 
-  // set up scales
-  const xScale = d3.scaleLinear()
-    .domain([0, 14])
-    .range([0, width]);
- 
-  const yScale = d3.scaleLinear()
-    .domain([-1, 1])
-    .range([height, 0]);
+  const femaleMinuteByMinuteCorrelation = femaleTempForDay.map((temp, i) => pearsonCorrelation(temp, femaleActForDay[i]));
+  const maleMinuteByMinuteCorrelation = maleTempForDay.map((temp, i) => pearsonCorrelation(temp, maleActForDay[i]));
 
-  // tooltip
-  const tooltip = d3.select("body").append("div")
-  .attr("class", "tooltip")
-  .style("position", "absolute")
-  .style("background", "system")
-  .style("padding", "5px")
-  .style("border-radius", "3px")
-  .style("opacity", 0);
+  const femaleDailyCorrelation = d3.mean(femaleMinuteByMinuteCorrelation);
+  const maleDailyCorrelation = d3.mean(maleMinuteByMinuteCorrelation);
+
+  console.log(`day ${day + 1} - female correlation: ${femaleDailyCorrelation}, male correlation: ${maleDailyCorrelation}`);
+
+  femaleDailyCorrelations.push(femaleDailyCorrelation);
+  maleDailyCorrelations.push(maleDailyCorrelation);
+}
+
+// create svg
+const margin = { top: 50, right: 50, bottom: 100, left: 50 };
+const width = 1000 - margin.left - margin.right;
+const height = 500 - margin.top - margin.bottom;
+
+const svg = d3.select("#chart").append("svg")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+  .attr("transform", `translate(${margin.left},${margin.top})`);
+
+// set up scales
+const xScale = d3.scaleLinear()
+  .domain([0, 14])
+  .range([0, width]);
+
+const xAxis = svg.append("g")
+  .attr("class", "x-axis")
+  .attr("transform", `translate(0, ${height})`)
+  .call(d3.axisBottom(xScale));
+
+
+const yScale = d3.scaleLinear()
+  .domain([-1, 1])
+  .range([height, 0]);
+
+// tooltip
+const tooltip = d3.select("body").append("div")
+.attr("class", "tooltip")
+.style("position", "absolute")
+.style("background", "system")
+.style("padding", "5px")
+.style("border-radius", "3px")
+.style("opacity", 0);
 
 // plot female correlations
 svg.selectAll(".femaleCorrelation")
@@ -178,20 +193,20 @@ svg.selectAll(".femaleCorrelation")
 .style("fill", "pink")
 .style("opacity", 0.6)
 .on("mouseover", function(event, d) {
-  const mouseX = event.pageX;
-  const mouseY = event.pageY;
+const mouseX = event.pageX;
+const mouseY = event.pageY;
 
-  d3.select(this).style("opacity", 1);
-  
-  // show tooltip with correlation data
-  tooltip.transition().duration(200).style("opacity", 1);
-  tooltip.html(`Female Correlation: ${d}`)
-    .style("left", `${mouseX + 5}px`)
-    .style("top", `${mouseY + 5}px`);
+d3.select(this).style("opacity", 1);
+
+// show tooltip with correlation data
+tooltip.transition().duration(200).style("opacity", 1);
+tooltip.html(`Female Correlation: ${d}`)
+  .style("left", `${mouseX + 5}px`)
+  .style("top", `${mouseY + 5}px`);
 })
 .on("mouseout", function() {
-  tooltip.transition().duration(200).style("opacity", 0);
-  d3.select(this).style("opacity", 0.6);
+tooltip.transition().duration(200).style("opacity", 0);
+d3.select(this).style("opacity", 0.6);
 });
 
 // plot male correlations
@@ -205,33 +220,33 @@ svg.selectAll(".maleCorrelation")
 .style("fill", "lightblue")
 .style("opacity", 0.6)
 .on("mouseover", function(event, d) {
-  const mouseX = event.pageX;
-  const mouseY = event.pageY;
+const mouseX = event.pageX;
+const mouseY = event.pageY;
 
-  d3.select(this).style("opacity", 1);
+d3.select(this).style("opacity", 1);
 
-  // show tooltip with correlation data
-  tooltip.transition().duration(200).style("opacity", 1);
-  tooltip.html(`Male Correlation: ${d}`)
-    .style("left", `${mouseX + 5}px`)
-    .style("top", `${mouseY + 5}px`);
+// show tooltip with correlation data
+tooltip.transition().duration(200).style("opacity", 1);
+tooltip.html(`Male Correlation: ${d}`)
+  .style("left", `${mouseX + 5}px`)
+  .style("top", `${mouseY + 5}px`);
 })
 .on("mouseout", function() {
-  tooltip.transition().duration(200).style("opacity", 0);
-  d3.select(this).style("opacity", 0.6);
+tooltip.transition().duration(200).style("opacity", 0);
+d3.select(this).style("opacity", 0.6);
 });
 
 // toggle opacity
 function toggleLegend(legend) {
-  const isFemale = (legend === "female");
+const isFemale = (legend === "female");
 
-  svg.selectAll(".femaleCorrelation")
-    .transition()
-    .style("opacity", isFemale ? 1 : 0.6);
+svg.selectAll(".femaleCorrelation")
+  .transition()
+  .style("opacity", isFemale ? 1 : 0.6);
 
-  svg.selectAll(".maleCorrelation")
-    .transition()
-    .style("opacity", isFemale ? 0.6 : 1);
+svg.selectAll(".maleCorrelation")
+  .transition()
+  .style("opacity", isFemale ? 0.6 : 1);
 }
 
 // create legend
@@ -263,65 +278,152 @@ legendGroup.append("text")
 .text("Male")
 .style("cursor", "pointer");
 
-  // add title
-  svg.append("text")
-    .attr("x", width / 2)
-    .attr("y", -20)
-    .style("text-anchor", "middle")
-    .text("Pearson Correlation of Temperature and Activity for Male vs Female Mice")
-    .style("font-size", "16px");
+// add title
+svg.append("text")
+  .attr("x", width / 2)
+  .attr("y", -20)
+  .style("text-anchor", "middle")
+  .text("Pearson Correlation of Temperature and Activity for Male vs Female Mice")
+  .style("font-size", "16px");
 
-  // add axes labels
-  svg.append("text")
-    .attr("x", -height / 2)
-    .attr("y", -margin.left + 12)
-    .style("text-anchor", "middle")
-    .text("Pearson Correlation")
-    .style("transform", "rotate(-90deg)");
+// add axes labels
+svg.append("text")
+  .attr("x", -height / 2)
+  .attr("y", -margin.left + 12)
+  .style("text-anchor", "middle")
+  .text("Pearson Correlation")
+  .style("transform", "rotate(-90deg)");
 
-  svg.append("text")
-    .attr("x", width - margin.right - 400)
-    .attr("y", height / 2 + 215)
-    .style("text-anchor", "middle")
-    .text("Day");
+svg.append("text")
+  .attr("x", width - margin.right - 400)
+  .attr("y", height / 2 + 215)
+  .style("text-anchor", "middle")
+  .text("Day");
 
-  // add x and y axes
-  svg.append("g")
-    .attr("transform", `translate(0,${height})`)
-    .call(d3.axisBottom(xScale).ticks(14));
+// add x and y axes
+svg.append("g")
+  .attr("transform", `translate(0,${height})`)
+  .call(d3.axisBottom(xScale).ticks(14));
 
-  svg.append("g")
-    .call(d3.axisLeft(yScale));
-    legendGroup.selectAll("text, circle")
-    .on("mouseover", function(event, d) {
-      const text = d3.select(this).text();
-  
-      if (text === "Female") {
-        svg.selectAll(".femaleCorrelation")
-          .transition().duration(200)
-          .style("opacity", 1);
-  
-        svg.selectAll(".maleCorrelation")
-          .transition().duration(200)
-          .style("opacity", 0);
-      } else if (text === "Male") {
-        svg.selectAll(".maleCorrelation")
-          .transition().duration(200)
-          .style("opacity", 1);
-  
-        svg.selectAll(".femaleCorrelation")
-          .transition().duration(200)
-          .style("opacity", 0);
-      }
-    })
-    .on("mouseout", function() {
-      svg.selectAll(".femaleCorrelation, .maleCorrelation")
+
+svg.append("g")
+  .call(d3.axisLeft(yScale));
+  legendGroup.selectAll("text, circle")
+  .on("mouseover", function(event, d) {
+    const text = d3.select(this).text();
+
+    if (text === "Female") {
+      svg.selectAll(".femaleCorrelation")
         .transition().duration(200)
-        .style("opacity", 0.6);
-    });
-  
+        .style("opacity", 1);
+
+      svg.selectAll(".maleCorrelation")
+        .transition().duration(200)
+        .style("opacity", 0);
+    } else if (text === "Male") {
+      svg.selectAll(".maleCorrelation")
+        .transition().duration(200)
+        .style("opacity", 1);
+
+      svg.selectAll(".femaleCorrelation")
+        .transition().duration(200)
+        .style("opacity", 0);
+    }
+  })
+
+
+  .on("mouseout", function() {
+    svg.selectAll(".femaleCorrelation, .maleCorrelation")
+      .transition().duration(200)
+      .style("opacity", 0.6);
+  });
+
+
+
+//curve
+const femaleTrendLine = d3.line()
+  .x((d, i) => xScale(i + 1))
+  .y(d => yScale(d))
+  .curve(d3.curveBasis); // Smooth the curve
+
+const maleTrendLine = d3.line()
+  .x((d, i) => xScale(i + 1))
+  .y(d => yScale(d))
+  .curve(d3.curveBasis);
+
+// Draw a trend line for women
+svg.append("path")
+  .datum(femaleDailyCorrelations)
+  .attr("class", "femaleTrendLine") 
+  .attr("fill", "none")
+  .attr("stroke", "pink")
+  .attr("stroke-width", 2)
+  .attr("d", femaleTrendLine)
+  .style("opacity", 0.7);
+
+svg.append("path")
+  .datum(maleDailyCorrelations)
+  .attr("class", "maleTrendLine") 
+  .attr("fill", "none")
+  .attr("stroke", "lightblue")
+  .attr("stroke-width", 2)
+  .attr("d", maleTrendLine)
+  .style("opacity", 0.7);
+
+
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
-    await createCorrelationPlot();
-  });
+
+function updateVisibility() {
+  const showFemale = document.getElementById("toggleFemale").checked;
+  const showMale = document.getElementById("toggleMale").checked;
+
+  console.log("Show Female:", showFemale, "Show Male:", showMale);
+
+  
+  const svg = d3.select("#chart svg");
+
+  // Control female data points and trend lines
+  svg.selectAll(".femaleCorrelation")
+    .transition().duration(300)
+    .style("opacity", showFemale ? 0.6 : 0); 
+
+  svg.selectAll(".femaleTrendLine")
+    .transition().duration(300)
+    .style("opacity", showFemale ? 0.7 : 0); 
+
+  // Control male data points and trend lines
+  svg.selectAll(".maleCorrelation")
+    .transition().duration(300)
+    .style("opacity", showMale ? 0.6 : 0); 
+
+  svg.selectAll(".maleTrendLine")
+    .transition().duration(300)
+    .style("opacity", showMale ? 0.7 : 0); 
+
+  console.log("Updated visibility");
+}
+
+
+
+
+document.addEventListener("DOMContentLoaded", async () => {
+  tooltip = d3.select("body").append("div")
+      .attr("class", "tooltip")
+      .style("position", "absolute")
+      .style("background", "rgba(0, 0, 0, 0.8)")
+      .style("color", "#fff")
+      .style("padding", "5px")
+      .style("border-radius", "3px")
+      .style("opacity", 0);
+
+  await createCorrelationPlot(); 
+
+  document.getElementById("toggleFemale")?.addEventListener("change", updateVisibility);
+  document.getElementById("toggleMale")?.addEventListener("change", updateVisibility);
+
+}); 
+
+
+
+
