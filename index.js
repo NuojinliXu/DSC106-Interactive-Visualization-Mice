@@ -419,7 +419,7 @@ function updateVisibility() {
   console.log("Updated visibility");
 }
 
-function calculateHourlyAverages(data) {
+function calculateHourlyAveragesFemale(data) {
   const hourlyAverages = [];
   const hourlyData = {};
 
@@ -434,6 +434,39 @@ function calculateHourlyAverages(data) {
     // iterate over the temperature readings
     for (const key in d) {
       if (key.startsWith('f') && !isNaN(d[key])) {
+        hourlyData[hour].values.push(d[key]);
+        hourlyData[hour].count += 1;
+      }
+    }
+  });
+
+  // calculate the average for each hour
+  Object.keys(hourlyData).forEach(hour => {
+    const dataForHour = hourlyData[hour];
+    const avg = dataForHour.count > 0 ? d3.mean(dataForHour.values) : 0;
+    hourlyAverages.push({ hour: parseInt(hour), value: avg });
+  });
+
+  // sort by hour
+  hourlyAverages.sort((a, b) => a.hour - b.hour);
+  return hourlyAverages;
+}
+
+function calculateHourlyAveragesMale(data) {
+  const hourlyAverages = [];
+  const hourlyData = {};
+
+  // group data by hour
+  data.forEach((d, index) => {
+    const hour = Math.floor(d.minute / 60);
+
+    if (!hourlyData[hour]) {
+      hourlyData[hour] = { values: [], count: 0 };
+    }
+
+    // iterate over the temperature readings
+    for (const key in d) {
+      if (key.startsWith('m') && !isNaN(d[key])) {
         hourlyData[hour].values.push(d[key]);
         hourlyData[hour].count += 1;
       }
@@ -470,8 +503,8 @@ async function createFemalePlots() {
   console.log(activityData);
 
   // process the temperature and activity data
-  const processedTempData = calculateHourlyAverages(temperatureData);
-  const processedActData = calculateHourlyAverages(activityData);
+  const processedTempData = calculateHourlyAveragesFemale(temperatureData);
+  const processedActData = calculateHourlyAveragesFemale(activityData);
 
   console.log(processedTempData, processedActData);
 
@@ -601,15 +634,15 @@ async function createMalePlots() {
   // load data
   const tempFiles = ["Mouse_Data_Student_Copy.xlsx - Male Temp.csv"];
   const actFiles = ["Mouse_Data_Student_Copy.xlsx - Male Act.csv"];
-  const labels = ["f"];
+  const labels = ["m"];
   let temperatureData = await loadTemperatureData(tempFiles, labels);
   console.log(temperatureData);
   let activityData = await loadActivityData(actFiles, labels);
   console.log(activityData);
 
   // process the temperature and activity data
-  const processedTempData = calculateHourlyAverages(temperatureData);
-  const processedActData = calculateHourlyAverages(activityData);
+  const processedTempData = calculateHourlyAveragesMale(temperatureData);
+  const processedActData = calculateHourlyAveragesMale(activityData);
 
   console.log(processedTempData, processedActData);
 
