@@ -286,6 +286,34 @@ legendGroup.append("text")
 
   svg.append("g")
     .call(d3.axisLeft(yScale));
+    legendGroup.selectAll("text, circle")
+    .on("mouseover", function(event, d) {
+      const text = d3.select(this).text();
+  
+      if (text === "Female") {
+        svg.selectAll(".femaleCorrelation")
+          .transition().duration(200)
+          .style("opacity", 1);
+  
+        svg.selectAll(".maleCorrelation")
+          .transition().duration(200)
+          .style("opacity", 0);
+      } else if (text === "Male") {
+        svg.selectAll(".maleCorrelation")
+          .transition().duration(200)
+          .style("opacity", 1);
+  
+        svg.selectAll(".femaleCorrelation")
+          .transition().duration(200)
+          .style("opacity", 0);
+      }
+    })
+    .on("mouseout", function() {
+      svg.selectAll(".femaleCorrelation, .maleCorrelation")
+        .transition().duration(200)
+        .style("opacity", 0.6);
+    });
+  
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
