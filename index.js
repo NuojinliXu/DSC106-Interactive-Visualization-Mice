@@ -1,4 +1,3 @@
-
 let femaleTempData = [];
 let maleTempData = [];
 let femaleActData = [];
@@ -167,7 +166,6 @@ const xAxis = svg.append("g")
   .attr("class", "x-axis")
   .attr("transform", `translate(0, ${height})`)
   .call(d3.axisBottom(xScale));
-
 
 const yScale = d3.scaleLinear()
   .domain([-1, 1])
@@ -376,6 +374,13 @@ function updateVisibility() {
   const showMale = document.getElementById("toggleMale").checked;
 
   console.log("Show Female Trendline:", showFemale, "Show Male Trendline:", showMale);
+
+  // show or hide the female/male plot containers based on the toggle
+  const axesContainer1 = d3.select("#female-plot");
+  axesContainer1.style("display", showFemale ? "inline-block" : "none");
+
+  const axesContainer2 = d3.select("#male-plot");
+  axesContainer2.style("display", showMale ? "inline-block" : "none");
   
   const svg = d3.select("#chart svg");
 
@@ -414,49 +419,214 @@ function updateVisibility() {
   console.log("Updated visibility");
 }
 
-function drawNewPlot(gender) {
-  console.log("Adding new plot for:", gender);
-  d3.select("#secondary-chart").remove();
+let femalePlotCreated = false;
 
-  // Get dimensions of the original chart
-  const originalChart = d3.select("#chart svg").node().getBoundingClientRect();
-  const width = originalChart.width;
-  const height = originalChart.height;
+async function createFemalePlots() {
+  // check if the female plot has already been created
+  if (femalePlotCreated) {
+    return; // skip creation if the plot is already created
+  }
 
-  // Append new SVG below the original chart
-  const newSvg = d3.select("#chart-container")
-    .append("svg")
-    .attr("id", "secondary-chart")
-    .attr("width", width)
-    .attr("height", height)
-    .style("margin-top", "20px");
+  // load data
+  const tempFiles = ["Mouse_Data_Student_Copy.xlsx - Fem Temp.csv", "Mouse_Data_Student_Copy.xlsx - Male Temp.csv"];
+  const actFiles = ["Mouse_Data_Student_Copy.xlsx - Fem Act.csv", "Mouse_Data_Student_Copy.xlsx - Male Act.csv"];
+  const labels = ["f", "m"];
+  let temperatureData = await loadTemperatureData(tempFiles, labels);
+  console.log(temperatureData);
+  let activityData = await loadActivityData(actFiles, labels);
+  console.log(activityData);
 
-  // Generate example data for the new plot
-  const newData = d3.range(10).map(d => ({
-    x: d,
-    y: gender === "female" ? d + Math.random() * 2 : d * 1.5 + Math.random() * 3
-  }));
+  // create container for axes (side by side)
+  const axesContainer = d3.select("#female-plot");
 
-  const xScale = d3.scaleLinear().domain([0, 10]).range([50, width - 50]);
-  const yScale = d3.scaleLinear().domain([0, 20]).range([height - 50, 50]);
+  // create svg for the first axis (left side)
+  const margin = { top: 50, right: 50, bottom: 100, left: 50 };
+  const width = 500 - margin.left - margin.right;  // adjust width for side-by-side
+  const height = 500 - margin.top - margin.bottom;
 
-  // Draw axes
-  newSvg.append("g")
-    .attr("transform", `translate(0, ${height - 50})`)
-    .call(d3.axisBottom(xScale));
+  const svg1 = axesContainer.append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .style("display", "inline-block") // to position them side by side
+    .append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  newSvg.append("g")
-    .attr("transform", `translate(50, 0)`)
-    .call(d3.axisLeft(yScale));
+  // set up scales for the first axis
+  const xScale1 = d3.scaleLinear()
+    .domain([0, 14])
+    .range([0, width]);
 
-  // Plot new points
-  newSvg.selectAll("circle")
-    .data(newData)
-    .enter().append("circle")
-    .attr("cx", d => xScale(d.x))
-    .attr("cy", d => yScale(d.y))
-    .attr("r", 5)
-    .attr("fill", gender === "female" ? "red" : "blue");
+  const yScale1 = d3.scaleLinear()
+    .domain([-1, 1])
+    .range([height, 0]);
+
+  // add x and y axes for the first axis
+  svg1.append("g")
+    .attr("transform", `translate(0,${height})`)
+    .call(d3.axisBottom(xScale1));
+
+  svg1.append("g")
+    .call(d3.axisLeft(yScale1));
+
+  // create svg for the second axis (right side)
+  const svg2 = axesContainer.append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .style("display", "inline-block") // to position them side by side
+    .append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // set up scales for the second axis (can be customized separately if needed)
+  const xScale2 = d3.scaleLinear()
+    .domain([0, 14])
+    .range([0, width]);
+
+  const yScale2 = d3.scaleLinear()
+    .domain([-1, 1])
+    .range([height, 0]);
+
+  // add x and y axes for the second axis
+  svg2.append("g")
+    .attr("transform", `translate(0,${height})`)
+    .call(d3.axisBottom(xScale2));
+
+  svg2.append("g")
+    .call(d3.axisLeft(yScale2));
+
+  // add axes labels for the first svg
+  svg1.append("text")
+    .attr("x", -height / 2)
+    .attr("y", -margin.left + 12)
+    .style("text-anchor", "middle")
+    .text("Temperature (ºC)")
+    .style("transform", "rotate(-90deg)");
+
+  svg1.append("text")
+    .attr("x", width - margin.right - 150)
+    .attr("y", height / 2 + 215)
+    .style("text-anchor", "middle")
+    .text("Day");
+
+  // add axes labels for second svg
+  svg2.append("text")
+    .attr("x", -height / 2)
+    .attr("y", -margin.left + 12)
+    .style("text-anchor", "middle")
+    .text("Activity Level")
+    .style("transform", "rotate(-90deg)");
+
+  svg2.append("text")
+    .attr("x", width - margin.right - 150)
+    .attr("y", height / 2 + 215)
+    .style("text-anchor", "middle")
+    .text("Day");
+
+  femalePlotCreated = true; // mark the female plot as created
+}
+
+let malePlotCreated = false;
+
+async function createMalePlots() {
+  // check if the male plot has already been created
+  if (malePlotCreated) {
+    return; // skip creation if the plot is already created
+  }
+
+  // load data
+  const tempFiles = ["Mouse_Data_Student_Copy.xlsx - Fem Temp.csv", "Mouse_Data_Student_Copy.xlsx - Male Temp.csv"];
+  const actFiles = ["Mouse_Data_Student_Copy.xlsx - Fem Act.csv", "Mouse_Data_Student_Copy.xlsx - Male Act.csv"];
+  const labels = ["f", "m"];
+  let temperatureData = await loadTemperatureData(tempFiles, labels);
+  console.log(temperatureData);
+  let activityData = await loadActivityData(actFiles, labels);
+  console.log(activityData);
+
+  // create container for axes (side by side)
+  const axesContainer = d3.select("#male-plot");
+
+  // create svg for the first axis (left side)
+  const margin = { top: 50, right: 50, bottom: 100, left: 50 };
+  const width = 500 - margin.left - margin.right;  // adjust width for side-by-side
+  const height = 500 - margin.top - margin.bottom;
+
+  const svg1 = axesContainer.append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .style("display", "inline-block") // to position them side by side
+    .append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // set up scales for the first axis
+  const xScale1 = d3.scaleLinear()
+    .domain([0, 14])
+    .range([0, width]);
+
+  const yScale1 = d3.scaleLinear()
+    .domain([-1, 1])
+    .range([height, 0]);
+
+  // add x and y axes for the first axis
+  svg1.append("g")
+    .attr("transform", `translate(0,${height})`)
+    .call(d3.axisBottom(xScale1));
+
+  svg1.append("g")
+    .call(d3.axisLeft(yScale1));
+
+  // create svg for the second axis (right side)
+  const svg2 = axesContainer.append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .style("display", "inline-block") // to position them side by side
+    .append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+  // set up scales for the second axis (can be customized separately if needed)
+  const xScale2 = d3.scaleLinear()
+    .domain([0, 14])
+    .range([0, width]);
+
+  const yScale2 = d3.scaleLinear()
+    .domain([-1, 1])
+    .range([height, 0]);
+
+  // add x and y axes for the second axis
+  svg2.append("g")
+    .attr("transform", `translate(0,${height})`)
+    .call(d3.axisBottom(xScale2));
+
+  svg2.append("g")
+    .call(d3.axisLeft(yScale2));
+
+  // add axes labels for the first svg
+  svg1.append("text")
+    .attr("x", -height / 2)
+    .attr("y", -margin.left + 12)
+    .style("text-anchor", "middle")
+    .text("Temperature (ºC)")
+    .style("transform", "rotate(-90deg)");
+
+  svg1.append("text")
+    .attr("x", width - margin.right - 150)
+    .attr("y", height / 2 + 215)
+    .style("text-anchor", "middle")
+    .text("Day");
+
+  // add axes labels for second svg
+  svg2.append("text")
+    .attr("x", -height / 2)
+    .attr("y", -margin.left + 12)
+    .style("text-anchor", "middle")
+    .text("Activity Level")
+    .style("transform", "rotate(-90deg)");
+
+  svg2.append("text")
+    .attr("x", width - margin.right - 150)
+    .attr("y", height / 2 + 215)
+    .style("text-anchor", "middle")
+    .text("Day");
+
+  malePlotCreated = true; // mark the male plot as created
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -476,5 +646,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateVisibility();
 
   document.getElementById("toggleFemale")?.addEventListener("change", updateVisibility);
+  document.getElementById("toggleFemale")?.addEventListener("change", createFemalePlots);
   document.getElementById("toggleMale")?.addEventListener("change", updateVisibility);
+  document.getElementById("toggleMale")?.addEventListener("change", createMalePlots);
 }); 

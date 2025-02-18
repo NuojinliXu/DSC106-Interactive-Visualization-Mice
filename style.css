@@ -27,7 +27,6 @@ p {
   margin-bottom: 20px;
 }
 
-/* Chart container */
 #chart-container {
   display: flex;
   justify-content: center;
@@ -42,35 +41,35 @@ p {
 
 
 .femaleCorrelation {
-  fill: #ff69b4; 
+  fill: "pink"; 
   opacity: 0.7;
   transition: opacity 0.3s ease-in-out, transform 0.2s ease-in-out;
 }
 
 .maleCorrelation {
-  fill: #1e90ff; 
+  fill: "lightblue"; 
   opacity: 0.7;
   transition: opacity 0.3s ease-in-out, transform 0.2s ease-in-out;
 }
 
-
 .femaleCorrelation:hover,
 .maleCorrelation:hover {
   opacity: 1;
-  stroke: black; 
+  stroke: grey; 
   stroke-width: 2px; 
 }
-
 
 #controls {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 15px;
-  margin-top: 15px;
-  padding: 10px;
+  margin: 0 auto;
+  padding: 20px;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 90%;
 }
 
 #controls label {
@@ -85,10 +84,9 @@ p {
 #controls input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #007bff; 
+  accent-color: #549a5f; 
   cursor: pointer;
 }
-
 
 .tooltip {
   position: absolute;
@@ -101,8 +99,3 @@ p {
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
 }
-
-
-
-
-
