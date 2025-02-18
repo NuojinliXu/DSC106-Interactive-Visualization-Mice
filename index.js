@@ -162,7 +162,7 @@ async function createCorrelationPlot() {
   const tooltip = d3.select("body").append("div")
   .attr("class", "tooltip")
   .style("position", "absolute")
-  .style("background", "lightgray")
+  .style("background", "system")
   .style("padding", "5px")
   .style("border-radius", "3px")
   .style("opacity", 0);
@@ -181,7 +181,7 @@ svg.selectAll(".femaleCorrelation")
   const mouseX = event.pageX;
   const mouseY = event.pageY;
   
-  // Show tooltip with correlation data
+  // show tooltip with correlation data
   tooltip.transition().duration(200).style("opacity", 1);
   tooltip.html(`Female Correlation: ${d}`)
     .style("left", `${mouseX + 5}px`)
@@ -205,7 +205,7 @@ svg.selectAll(".maleCorrelation")
   const mouseX = event.pageX;
   const mouseY = event.pageY;
 
-  // Show tooltip with correlation data
+  // show tooltip with correlation data
   tooltip.transition().duration(200).style("opacity", 1);
   tooltip.html(`Male Correlation: ${d}`)
     .style("left", `${mouseX + 5}px`)
@@ -215,24 +215,24 @@ svg.selectAll(".maleCorrelation")
   tooltip.transition().duration(200).style("opacity", 0);
 });
 
-// Function to toggle opacity on legend click
+// toggle opacity
 function toggleLegend(legend) {
-const isFemale = legend === "female";
+  const isFemale = (legend === "female");
 
-svg.selectAll(".femaleCorrelation")
-  .transition()
-  .style("opacity", isFemale ? 1 : 0.6);  // Make female points opaque or transparent
+  svg.selectAll(".femaleCorrelation")
+    .transition()
+    .style("opacity", isFemale ? 1 : 0.6);
 
-svg.selectAll(".maleCorrelation")
-  .transition()
-  .style("opacity", isFemale ? 0.6 : 1);  // Make male points opaque or transparent
+  svg.selectAll(".maleCorrelation")
+    .transition()
+    .style("opacity", isFemale ? 0.6 : 1);
 }
 
-// Create Legend
+// create legend
 const legendGroup = svg.append("g").attr("class", "legend");
 
 legendGroup.append("circle")
-.attr("cx", 780)
+.attr("cx", 786)
 .attr("cy", 295)
 .attr("r", 6)
 .style("fill", "pink")
@@ -245,7 +245,7 @@ legendGroup.append("text")
 .style("cursor", "pointer");
 
 legendGroup.append("circle")
-.attr("cx", 780)
+.attr("cx", 786)
 .attr("cy", 320)
 .attr("r", 6)
 .style("fill", "lightblue")
@@ -256,24 +256,6 @@ legendGroup.append("text")
 .attr("y", 325)
 .text("Male")
 .style("cursor", "pointer");
- 
-  // // plot female daily correlations
-  // svg.selectAll(".femaleCorrelation")
-  //   .data(femaleDailyCorrelations)
-  //   .enter().append("circle")
-  //   .attr("class", "femaleCorrelation")
-  //   .attr("cx", (d, i) => xScale(i + 1))
-  //   .attr("cy", (d) => yScale(d))
-  //   .attr("r", 6);
- 
-  // // plot male daily correlations
-  // svg.selectAll(".maleCorrelation")
-  //   .data(maleDailyCorrelations)
-  //   .enter().append("circle")
-  //   .attr("class", "maleCorrelation")
-  //   .attr("cx", (d, i) => xScale(i + 1))
-  //   .attr("cy", (d) => yScale(d))
-  //   .attr("r", 6); 
 
   // add title
   svg.append("text")
