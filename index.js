@@ -370,7 +370,6 @@ svg.append("path")
   .attr("d", maleTrendLine)
   .style("opacity", 0.7);
 
-
 }
 
 
@@ -379,14 +378,13 @@ function updateVisibility() {
   const showMale = document.getElementById("toggleMale").checked;
 
   console.log("Show Female:", showFemale, "Show Male:", showMale);
-
   
   const svg = d3.select("#chart svg");
 
   // Control female data points and trend lines
   svg.selectAll(".femaleCorrelation")
     .transition().duration(300)
-    .style("opacity", showFemale ? 0.6 : 0); 
+    .style("opacity", showFemale ? 1 : 0.6); 
 
   svg.selectAll(".femaleTrendLine")
     .transition().duration(300)
@@ -395,7 +393,7 @@ function updateVisibility() {
   // Control male data points and trend lines
   svg.selectAll(".maleCorrelation")
     .transition().duration(300)
-    .style("opacity", showMale ? 0.6 : 0); 
+    .style("opacity", showMale ? 1 : 0.6); 
 
   svg.selectAll(".maleTrendLine")
     .transition().duration(300)
