@@ -157,26 +157,123 @@ async function createCorrelationPlot() {
   const yScale = d3.scaleLinear()
     .domain([-1, 1])
     .range([height, 0]);
+
+  // tooltip
+  const tooltip = d3.select("body").append("div")
+  .attr("class", "tooltip")
+  .style("position", "absolute")
+  .style("background", "lightgray")
+  .style("padding", "5px")
+  .style("border-radius", "3px")
+  .style("opacity", 0);
+
+// plot female correlations
+svg.selectAll(".femaleCorrelation")
+.data(femaleDailyCorrelations)
+.enter().append("circle")
+.attr("class", "femaleCorrelation")
+.attr("cx", (d, i) => xScale(i + 1))
+.attr("cy", (d) => yScale(d))
+.attr("r", 5)
+.style("fill", "pink")
+.style("opacity", 0.6)
+.on("mouseover", function(event, d) {
+  const mouseX = event.pageX;
+  const mouseY = event.pageY;
+  
+  // Show tooltip with correlation data
+  tooltip.transition().duration(200).style("opacity", 1);
+  tooltip.html(`Female Correlation: ${d}`)
+    .style("left", `${mouseX + 5}px`)
+    .style("top", `${mouseY + 5}px`);
+})
+.on("mouseout", function() {
+  tooltip.transition().duration(200).style("opacity", 0);
+});
+
+// plot male correlations
+svg.selectAll(".maleCorrelation")
+.data(maleDailyCorrelations)
+.enter().append("circle")
+.attr("class", "maleCorrelation")
+.attr("cx", (d, i) => xScale(i + 1))
+.attr("cy", (d) => yScale(d))
+.attr("r", 5)
+.style("fill", "lightblue")
+.style("opacity", 0.6)
+.on("mouseover", function(event, d) {
+  const mouseX = event.pageX;
+  const mouseY = event.pageY;
+
+  // Show tooltip with correlation data
+  tooltip.transition().duration(200).style("opacity", 1);
+  tooltip.html(`Male Correlation: ${d}`)
+    .style("left", `${mouseX + 5}px`)
+    .style("top", `${mouseY + 5}px`);
+})
+.on("mouseout", function() {
+  tooltip.transition().duration(200).style("opacity", 0);
+});
+
+// Function to toggle opacity on legend click
+function toggleLegend(legend) {
+const isFemale = legend === "female";
+
+svg.selectAll(".femaleCorrelation")
+  .transition()
+  .style("opacity", isFemale ? 1 : 0.6);  // Make female points opaque or transparent
+
+svg.selectAll(".maleCorrelation")
+  .transition()
+  .style("opacity", isFemale ? 0.6 : 1);  // Make male points opaque or transparent
+}
+
+// Create Legend
+const legendGroup = svg.append("g").attr("class", "legend");
+
+legendGroup.append("circle")
+.attr("cx", 780)
+.attr("cy", 295)
+.attr("r", 6)
+.style("fill", "pink")
+.on("click", () => toggleLegend("female"));
+
+legendGroup.append("text")
+.attr("x", 800)
+.attr("y", 300)
+.text("Female")
+.style("cursor", "pointer");
+
+legendGroup.append("circle")
+.attr("cx", 780)
+.attr("cy", 320)
+.attr("r", 6)
+.style("fill", "lightblue")
+.on("click", () => toggleLegend("male"));
+
+legendGroup.append("text")
+.attr("x", 800)
+.attr("y", 325)
+.text("Male")
+.style("cursor", "pointer");
  
-  // plot female daily correlations
-  svg.selectAll(".femaleCorrelation")
-    .data(femaleDailyCorrelations)
-    .enter().append("circle")
-    .attr("class", "femaleCorrelation")
-    .attr("cx", (d, i) => xScale(i + 1))
-    .attr("cy", (d) => yScale(d))
-    .attr("r", 5)
-    .style("fill", "pink");
+  // // plot female daily correlations
+  // svg.selectAll(".femaleCorrelation")
+  //   .data(femaleDailyCorrelations)
+  //   .enter().append("circle")
+  //   .attr("class", "femaleCorrelation")
+  //   .attr("cx", (d, i) => xScale(i + 1))
+  //   .attr("cy", (d) => yScale(d))
+  //   .attr("r", 6);
  
-  // plot male daily correlations
-  svg.selectAll(".maleCorrelation")
-    .data(maleDailyCorrelations)
-    .enter().append("circle")
-    .attr("class", "maleCorrelation")
-    .attr("cx", (d, i) => xScale(i + 1))
-    .attr("cy", (d) => yScale(d))
-    .attr("r", 5)
-    .style("fill", "lightblue"); 
+  // // plot male daily correlations
+  // svg.selectAll(".maleCorrelation")
+  //   .data(maleDailyCorrelations)
+  //   .enter().append("circle")
+  //   .attr("class", "maleCorrelation")
+  //   .attr("cx", (d, i) => xScale(i + 1))
+  //   .attr("cy", (d) => yScale(d))
+  //   .attr("r", 6); 
 
   // add title
   svg.append("text")

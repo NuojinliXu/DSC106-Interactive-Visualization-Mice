@@ -10,3 +10,23 @@ body {
     margin-inline: max(1em, (100% - 100ch) / 2);
     text-align: center;
 }
+
+.femaleCorrelation {
+    fill: pink;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+  }
+  
+  .maleCorrelation {
+    fill: lightblue;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+  }
+  
+  .femaleCorrelation:hover {
+    opacity: 1;
+  }
+  
+  .maleCorrelation:hover {
+    opacity: 1;
+  }
