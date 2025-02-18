@@ -180,6 +180,8 @@ svg.selectAll(".femaleCorrelation")
 .on("mouseover", function(event, d) {
   const mouseX = event.pageX;
   const mouseY = event.pageY;
+
+  d3.select(this).style("opacity", 1);
   
   // show tooltip with correlation data
   tooltip.transition().duration(200).style("opacity", 1);
@@ -189,6 +191,7 @@ svg.selectAll(".femaleCorrelation")
 })
 .on("mouseout", function() {
   tooltip.transition().duration(200).style("opacity", 0);
+  d3.select(this).style("opacity", 0.6);
 });
 
 // plot male correlations
@@ -205,6 +208,8 @@ svg.selectAll(".maleCorrelation")
   const mouseX = event.pageX;
   const mouseY = event.pageY;
 
+  d3.select(this).style("opacity", 1);
+
   // show tooltip with correlation data
   tooltip.transition().duration(200).style("opacity", 1);
   tooltip.html(`Male Correlation: ${d}`)
@@ -213,6 +218,7 @@ svg.selectAll(".maleCorrelation")
 })
 .on("mouseout", function() {
   tooltip.transition().duration(200).style("opacity", 0);
+  d3.select(this).style("opacity", 0.6);
 });
 
 // toggle opacity
