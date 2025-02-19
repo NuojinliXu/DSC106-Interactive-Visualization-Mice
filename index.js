@@ -431,7 +431,7 @@ function updateSelection() {
 function updateSelectionCount(){
   const countElement = document.getElementById('selectionCount');
   countElement.textContent = `${
-    d3.selectAll("circle.selected").size() || 'No'
+    d3.selectAll("circle.selected").size() || '0'
   }  selected`;
 }
 function mean(arr) {
