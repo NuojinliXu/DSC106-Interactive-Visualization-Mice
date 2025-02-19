@@ -419,70 +419,36 @@ function updateVisibility() {
   console.log("Updated visibility");
 }
 
-function calculateHourlyAveragesFemale(data) {
-  const hourlyAverages = [];
-  const hourlyData = {};
+function calculateHourlyAverages(data) {
+  const hourlyAverages = {};
 
   // group data by hour
-  data.forEach((d, index) => {
+  data.forEach((d) => {
     const hour = Math.floor(d.minute / 60);
 
-    if (!hourlyData[hour]) {
-      hourlyData[hour] = { values: [], count: 0 };
+    if (!hourlyAverages[hour]) {
+      hourlyAverages[hour] = { values: [], count: 0 };
     }
 
-    // iterate over the temperature readings
-    for (const key in d) {
-      if (key.startsWith('f') && !isNaN(d[key])) {
-        hourlyData[hour].values.push(d[key]);
-        hourlyData[hour].count += 1;
+    // iterate over the readings and include only "f<number>" or "m<number>"
+    Object.keys(d).forEach((key) => {
+      if ((/^f\d+$/.test(key) || /^m\d+$/.test(key)) && !isNaN(d[key])) {
+        hourlyAverages[hour].values.push(d[key]);
+        hourlyAverages[hour].count += 1;
       }
-    }
+    });
   });
 
   // calculate the average for each hour
-  Object.keys(hourlyData).forEach(hour => {
-    const dataForHour = hourlyData[hour];
+    const result = Object.keys(hourlyAverages).map(hour => {
+    const dataForHour = hourlyAverages[hour];
     const avg = dataForHour.count > 0 ? d3.mean(dataForHour.values) : 0;
-    hourlyAverages.push({ hour: parseInt(hour), value: avg });
+    return { hour: parseInt(hour), value: avg };
   });
 
   // sort by hour
-  hourlyAverages.sort((a, b) => a.hour - b.hour);
-  return hourlyAverages;
-}
-
-function calculateHourlyAveragesMale(data) {
-  const hourlyAverages = [];
-  const hourlyData = {};
-
-  // group data by hour
-  data.forEach((d, index) => {
-    const hour = Math.floor(d.minute / 60);
-
-    if (!hourlyData[hour]) {
-      hourlyData[hour] = { values: [], count: 0 };
-    }
-
-    // iterate over the temperature readings
-    for (const key in d) {
-      if (key.startsWith('m') && !isNaN(d[key])) {
-        hourlyData[hour].values.push(d[key]);
-        hourlyData[hour].count += 1;
-      }
-    }
-  });
-
-  // calculate the average for each hour
-  Object.keys(hourlyData).forEach(hour => {
-    const dataForHour = hourlyData[hour];
-    const avg = dataForHour.count > 0 ? d3.mean(dataForHour.values) : 0;
-    hourlyAverages.push({ hour: parseInt(hour), value: avg });
-  });
-
-  // sort by hour
-  hourlyAverages.sort((a, b) => a.hour - b.hour);
-  return hourlyAverages;
+  result.sort((a, b) => a.hour - b.hour);
+  return result;
 }
 
 let femalePlotCreated = false;
@@ -503,8 +469,8 @@ async function createFemalePlots() {
   console.log("act data:", activityData);
 
   // process the temperature and activity data
-  const processedTempData = calculateHourlyAveragesFemale(temperatureData);
-  const processedActData = calculateHourlyAveragesFemale(activityData);
+  const processedTempData = calculateHourlyAverages(temperatureData);
+  const processedActData = calculateHourlyAverages(activityData);
 
   console.log("processed data:", processedTempData, processedActData);
 
@@ -641,8 +607,8 @@ async function createMalePlots() {
   console.log("act data:", activityData);
 
   // process the temperature and activity data
-  const processedTempData = calculateHourlyAveragesMale(temperatureData);
-  const processedActData = calculateHourlyAveragesMale(activityData);
+  const processedTempData = calculateHourlyAverages(temperatureData);
+  const processedActData = calculateHourlyAverages(activityData);
 
   console.log("processed data:", processedTempData, processedActData);
 
