@@ -156,10 +156,8 @@ const svg = d3.select("#chart").append("svg")
   .attr("width", width + margin.left + margin.right)
   .attr("height", height + margin.top + margin.bottom)
   .attr("class", "correlationPlot")
-  /** 
   .append("g")
   .attr("transform", `translate(${margin.left},${margin.top})`);
-*/
 // set up scales
 xScale = d3.scaleLinear()
   .domain([0, 14])
@@ -398,9 +396,9 @@ function brushSelector() {
   const svg = document.querySelector('.correlationPlot');
   d3.select(svg).call(d3.brush().on("start brush end", brushed));
   d3.select(svg).selectAll(".maleCorrelation, .femaleCorrelation").raise();
-  d3.select(svg).selectAll(".legend text")
-    .style("fill", "black")  // Ensure text color is visible
-    .style("opacity", 1)      // Make sure it's not hidden
+  d3.select(svg).selectAll("text")
+    .style("fill", "black")
+    .style("opacity", 1)      
     .raise();
   d3.select(svg).selectAll(".legend").raise();
 }
