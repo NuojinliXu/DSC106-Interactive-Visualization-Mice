@@ -3,6 +3,9 @@ let maleTempData = [];
 let femaleActData = [];
 let maleActData = [];
 let tooltip;
+let femaleDailyCorrelations = [];
+let maleDailyCorrelations = [];
+var xScale, yScale;
 
 async function loadTemperatureData(filenames, labels) {
   let data = [];
@@ -85,7 +88,6 @@ for (let day = 0; day < numDays; day++) {
 return dailyCorrelations;
 }
 
-let xScale;//加
 
 async function createCorrelationPlot() {
 // load data
@@ -124,8 +126,7 @@ for (let min = 0; min < 20160; min++) {
 console.log(femaleTempData.length, femaleActData.length, maleTempData.length, maleActData.length);
 
 // initialize correlation arrays
-let femaleDailyCorrelations = [];
-let maleDailyCorrelations = [];
+
 
 // calculate daily correlations
 for (let day = 0; day < 14; day++) {
@@ -154,11 +155,13 @@ const height = 500 - margin.top - margin.bottom;
 const svg = d3.select("#chart").append("svg")
   .attr("width", width + margin.left + margin.right)
   .attr("height", height + margin.top + margin.bottom)
+  .attr("class", "correlationPlot")
+  /** 
   .append("g")
   .attr("transform", `translate(${margin.left},${margin.top})`);
-
+*/
 // set up scales
-const xScale = d3.scaleLinear()
+xScale = d3.scaleLinear()
   .domain([0, 14])
   .range([0, width]);
 
@@ -167,7 +170,7 @@ const xAxis = svg.append("g")
   .attr("transform", `translate(0, ${height})`)
   .call(d3.axisBottom(xScale));
 
-const yScale = d3.scaleLinear()
+yScale = d3.scaleLinear()
   .domain([-1, 1])
   .range([height, 0]);
 
@@ -367,8 +370,74 @@ svg.append("path")
   .attr("stroke-width", 2)
   .attr("d", maleTrendLine)
   .style("opacity", 0.7);
+
+  brushSelector();
+
 }
 
+var brushSelection;
+function brushSelector() {
+  const svg = document.querySelector('.correlationPlot');
+  d3.select(svg).call(d3.brush().on("start brush end", brushed));
+  d3.select(svg).selectAll(".maleCorrelation, .femaleCorrelation").raise();
+  d3.select(svg).selectAll(".legend text")
+    .style("fill", "black")  // Ensure text color is visible
+    .style("opacity", 1)      // Make sure it's not hidden
+    .raise();
+  d3.select(svg).selectAll(".legend").raise();
+}
+
+function brushed(event) {
+  brushSelection = event.selection;
+  updateSelection();
+  updateSelectionCount();
+  updateSelectionMean();
+}
+
+function isSelected(idx, correlation) {
+  if (!brushSelection) {
+    return false;
+  }
+  const min = { x: brushSelection[0][0], y: brushSelection[0][1] }; 
+  const max = { x: brushSelection[1][0], y: brushSelection[1][1] }; 
+  const x = xScale(idx+ 1); 
+  const y = yScale(correlation); 
+  return x > min.x && x < max.x && y > min.y && y < max.y;
+}
+
+function updateSelection() {
+  d3.selectAll('.maleCorrelation').classed('selected', (d, idx) => isSelected(idx, d));
+  d3.selectAll('.femaleCorrelation').classed('selected', (d, idx) => isSelected(idx, d));
+}
+
+function updateSelectionCount(){
+  const countElement = document.getElementById('selectionCount');
+  countElement.textContent = `${
+    d3.selectAll("circle.selected").size() || 'No'
+  }  selected`;
+}
+function mean(arr) {
+  if (arr.length === 0) return NaN; // Handle empty array
+  return arr.reduce((sum, val) => sum + val, 0) / arr.length;
+}
+
+function updateSelectionMean() {
+  const meanElement = document.getElementById('selectionMean');
+  
+  const femaleSelectedCommits = brushSelection
+    ? femaleDailyCorrelations.filter((d,idx) => isSelected(idx, d))
+    : [];
+  const maleSelectedCommits = brushSelection
+    ? maleDailyCorrelations.filter((d,idx) => isSelected(idx, d))
+    : [];
+  if ((femaleSelectedCommits.length === 0) && (maleDailyCorrelations.length === 0)){
+    meanElement.innerHTML = ""
+  }
+  meanElement.innerHTML = `Female Correlation Mean: ${mean(femaleSelectedCommits)}<br>
+  Male Correlation Mean: ${mean(maleSelectedCommits)} <br>
+  Total Mean: ${mean(femaleSelectedCommits.concat(maleSelectedCommits))}`;
+
+}
 function updateVisibility() {
   const showFemale = document.getElementById("toggleFemale").checked;
   const showMale = document.getElementById("toggleMale").checked;
