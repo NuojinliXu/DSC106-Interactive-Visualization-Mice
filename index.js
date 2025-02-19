@@ -281,7 +281,8 @@ svg.append("text")
   .attr("x", width / 2)
   .attr("y", -20)
   .style("text-anchor", "middle")
-  .text("Pearson Correlation of Temperature and Activity for Male vs Female Mice")
+  .text("Pearson Correlation of Temperature and Activity")
+  .style("font-weight", "bold")
   .style("font-size", "16px");
 
 // add axes labels
@@ -289,7 +290,7 @@ svg.append("text")
   .attr("x", -height / 2)
   .attr("y", -margin.left + 12)
   .style("text-anchor", "middle")
-  .text("Pearson Correlation")
+  .text("Correlation Coefficient (r)")
   .style("transform", "rotate(-90deg)");
 
 svg.append("text")
@@ -297,6 +298,23 @@ svg.append("text")
   .attr("y", height / 2 + 215)
   .style("text-anchor", "middle")
   .text("Day");
+
+  const subtitle = [
+    "Daily Pearson correlation coefficients between core body temperature and activity level in male (n = 13) and female (n = 13) mice over 14 days."
+  ];
+  
+  const lineHeight = 16;
+  const fontSize = "12px";
+  
+  // add plot description
+  subtitle.forEach((line, index) => {
+    svg.append("text")
+      .attr("x", width / 2)
+      .attr("y", height + 60 + index * lineHeight)
+      .attr("text-anchor", "middle")
+      .style("font-size", fontSize)
+      .text(line);
+  });
 
 // add x and y axes
 svg.append("g")
@@ -453,142 +471,6 @@ function calculateHourlyAverages(data) {
 
 let femalePlotCreated = false;
 
-// async function createFemalePlots() {
-//   // check if the female plot has already been created
-//   if (femalePlotCreated) {
-//     return; // skip creation if the plot is already created
-//   }
-
-//   // load data
-//   const tempFiles = ["Mouse_Data_Student_Copy.xlsx - Fem Temp.csv"];
-//   const actFiles = ["Mouse_Data_Student_Copy.xlsx - Fem Act.csv"];
-//   const labels = ["f"];
-//   let temperatureData = await loadTemperatureData(tempFiles, labels);
-//   console.log("temp data:", temperatureData);
-//   let activityData = await loadActivityData(actFiles, labels);
-//   console.log("act data:", activityData);
-
-//   // process the temperature and activity data
-//   const processedTempData = calculateHourlyAverages(temperatureData);
-//   const processedActData = calculateHourlyAverages(activityData);
-
-//   console.log("processed data:", processedTempData, processedActData);
-
-//   // apply 3-hour moving average to smooth data
-//   const smoothedTempData = smoothData(processedTempData.map(d => d.value), 3);
-//   const smoothedActData = smoothData(processedActData.map(d => d.value), 3);
-
-//   console.log("smoothed data:", smoothedTempData, smoothedActData);
-
-//   // create container for axes (side by side)
-//   const axesContainer = d3.select("#female-plot");
-
-//   // create svg for the first axis (left side)
-//   const margin = { top: 50, right: 50, bottom: 100, left: 50 };
-//   const width = 500 - margin.left - margin.right;  // adjust width for side-by-side
-//   const height = 500 - margin.top - margin.bottom;
-
-//   const svg1 = axesContainer.append("svg")
-//     .attr("width", width + margin.left + margin.right)
-//     .attr("height", height + margin.top + margin.bottom)
-//     .style("display", "inline-block") // to position them side by side
-//     .append("g")
-//     .attr("transform", `translate(${margin.left},${margin.top})`);
-
-//   // set up scales for the first axis
-//   const xScale1 = d3.scaleLinear()
-//     .domain([0, d3.max(processedTempData, d => d.hour)])
-//     .range([0, width]);
-
-//   const yScale1 = d3.scaleLinear()
-//     .domain([d3.min(smoothedTempData), d3.max(smoothedTempData)])
-//     .range([height, 0]);
-
-//   // add x and y axes for the first axis
-//   svg1.append("g")
-//     .attr("transform", `translate(0,${height})`)
-//     .call(d3.axisBottom(xScale1));
-
-//   svg1.append("g")
-//     .call(d3.axisLeft(yScale1));
-
-//   svg1.append("path")
-//   .data([smoothedTempData])
-//   .attr("fill", "none")
-//   .attr("stroke", "pink")
-//   .attr("stroke-width", 2)
-//   .attr("d", d3.line()
-//     .x((d, i) => xScale1(processedTempData[i].hour))
-//     .y(d => yScale1(d))
-//   );
-
-//   // create svg for the second axis (right side)
-//   const svg2 = axesContainer.append("svg")
-//     .attr("width", width + margin.left + margin.right)
-//     .attr("height", height + margin.top + margin.bottom)
-//     .style("display", "inline-block") // to position them side by side
-//     .append("g")
-//     .attr("transform", `translate(${margin.left},${margin.top})`);
-
-//   // set up scales for the second axis
-//   const xScale2 = d3.scaleLinear()
-//     .domain([0, d3.max(processedActData, d => d.hour)])
-//     .range([0, width]);
-
-//   const yScale2 = d3.scaleLinear()
-//     .domain([d3.min(smoothedActData), d3.max(smoothedActData)])
-//     .range([height, 0]);
-
-//   // add x and y axes for the second axis
-//   svg2.append("g")
-//     .attr("transform", `translate(0,${height})`)
-//     .call(d3.axisBottom(xScale2));
-
-//   svg2.append("g")
-//     .call(d3.axisLeft(yScale2));
-
-//   // plot data
-//   svg2.append("path")
-//   .data([smoothedActData])
-//   .attr("fill", "none")
-//   .attr("stroke", "pink")
-//   .attr("stroke-width", 2)
-//   .attr("d", d3.line()
-//     .x((d, i) => xScale2(processedActData[i].hour))
-//     .y(d => yScale2(d))
-//   );
-
-//   // add axes labels for the first svg
-//   svg1.append("text")
-//     .attr("x", -height / 2)
-//     .attr("y", -margin.left + 12)
-//     .style("text-anchor", "middle")
-//     .text("Temperature (ºC)")
-//     .style("transform", "rotate(-90deg)");
-
-//   svg1.append("text")
-//     .attr("x", width - margin.right - 150)
-//     .attr("y", height / 2 + 215)
-//     .style("text-anchor", "middle")
-//     .text("Hour");
-
-//   // add axes labels for second svg
-//   svg2.append("text")
-//     .attr("x", -height / 2)
-//     .attr("y", -margin.left + 12)
-//     .style("text-anchor", "middle")
-//     .text("Activity Level")
-//     .style("transform", "rotate(-90deg)");
-
-//   svg2.append("text")
-//     .attr("x", width - margin.right - 150)
-//     .attr("y", height / 2 + 215)
-//     .style("text-anchor", "middle")
-//     .text("Hour");
-
-//   femalePlotCreated = true; // mark the female plot as created
-// }
-
 async function createFemalePlots() {
   if (femalePlotCreated) return;
 
@@ -652,9 +534,9 @@ async function createFemalePlots() {
       .attr("class", "estrus-bar")
       .attr("x", d => xScale(d.start))
       .attr("width", d => xScale(d.end) - xScale(d.start))
-      .attr("y", -10) // Positioned at the top
+      .attr("y", -10) // positioned at the top
       .attr("height", 10)
-      .attr("fill", "pink") // Pink for estrus cycle
+      .attr("fill", "pink") // pink for estrus cycle
       .attr("opacity", 0.6);
   }
 
@@ -743,7 +625,26 @@ async function createFemalePlots() {
       .attr("text-anchor", "middle")
       .style("font-size", "16px")
       .style("font-weight", "bold")
-      .text("Average Core Body Temperature of Female Mice Over 14 Days");
+      .text("Average Temperature");
+
+      const subtitle1 = [
+        "Average hourly core body temperature (smoothed over 3-hour intervals)",
+        "in female mice (n = 13) over 14 days. Grey and yellow color blocks represent",
+        "lights off and on, respectively. Pink color blocks represent estrus cycle."
+      ];
+      
+      const lineHeight = 16;
+      const fontSize = "12px";
+      
+      // add plot description
+      subtitle1.forEach((line, index) => {
+        svg1.append("text")
+          .attr("x", width / 2)
+          .attr("y", height + 60 + index * lineHeight)
+          .attr("text-anchor", "middle")
+          .style("font-size", fontSize)
+          .text(line);
+      });
 
   // add axes labels for second svg
   svg2.append("text")
@@ -766,7 +667,23 @@ async function createFemalePlots() {
   .attr("text-anchor", "middle")
   .style("font-size", "16px")
   .style("font-weight", "bold")
-  .text("Average Activity Levels of Female Mice Over 14 Days");
+  .text("Average Activity");
+
+  const subtitle2 = [
+    "Average activity level (smoothed over 3-hour intervals) in female",
+    "mice (n = 13) over 14 days. Grey and yellow color blocks represent",
+    "lights off and on, respectively. Pink color blocks represent estrus cycle."
+  ];
+  
+  // add plot description
+  subtitle2.forEach((line, index) => {
+    svg2.append("text")
+      .attr("x", width / 2)
+      .attr("y", height + 60 + index * lineHeight)
+      .attr("text-anchor", "middle")
+      .style("font-size", fontSize)
+      .text(line);
+  });
 
   femalePlotCreated = true;
 }
@@ -894,7 +811,25 @@ async function createMalePlots() {
   .attr("text-anchor", "middle")
   .style("font-size", "16px")
   .style("font-weight", "bold")
-  .text("Average Core Body Temperature of Male Mice Over 14 Days");
+  .text("Average Temperature");
+
+  const subtitle1 = [
+    "Average hourly core body temperature (smoothed over 3-hour intervals) in male mice",
+    "(n = 13) over 14 days. Grey and yellow color blocks represent lights off and on, respectively."
+  ];
+  
+  const lineHeight = 16;
+  const fontSize = "12px";
+  
+  // add plot description
+  subtitle1.forEach((line, index) => {
+    svg1.append("text")
+      .attr("x", width / 2)
+      .attr("y", height + 60 + index * lineHeight)
+      .attr("text-anchor", "middle")
+      .style("font-size", fontSize)
+      .text(line);
+  });
 
   // add axes labels for second svg
   svg2.append("text")
@@ -917,7 +852,22 @@ async function createMalePlots() {
   .attr("text-anchor", "middle")
   .style("font-size", "16px")
   .style("font-weight", "bold")
-  .text("Average Activity Levels of Male Mice Over 14 Days");
+  .text("Average Activity");
+
+  const subtitle2 = [
+    "Average activity level (smoothed over 3-hour intervals) in male mice (n = 13) over",
+    "14 days. Grey and yellow color blocks represent lights off and on, respectively."
+  ];
+  
+  // add plot description
+  subtitle2.forEach((line, index) => {
+    svg2.append("text")
+      .attr("x", width / 2)
+      .attr("y", height + 60 + index * lineHeight)
+      .attr("text-anchor", "middle")
+      .style("font-size", fontSize)
+      .text(line);
+  });
 
   malePlotCreated = true;
 }
