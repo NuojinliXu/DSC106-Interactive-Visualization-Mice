@@ -260,6 +260,89 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
       .style("opacity", currentGenderSelection === "male" ? 1 : 0.6),
     exit => exit.remove()
   );
+  // Create legend
+const legendGroup = svg.append("g").attr("class", "legend");
+
+// Female legend
+legendGroup.append("circle")
+  .attr("cx", 786)
+  .attr("cy", 295)
+  .attr("r", 6)
+  .style("fill", "pink")
+  .on("mouseover", function() {
+    svg.selectAll(".femaleCorrelation")
+      .transition().duration(200)
+      .style("opacity", 1);
+    svg.selectAll(".maleCorrelation")
+      .transition().duration(200)
+      .style("opacity", 0);
+  })
+  .on("mouseout", function() {
+    svg.selectAll(".femaleCorrelation, .maleCorrelation")
+      .transition().duration(200)
+      .style("opacity", 0.6);
+  });
+
+legendGroup.append("text")
+  .attr("x", 800)
+  .attr("y", 300)
+  .text("Female")
+  .style("cursor", "pointer")
+  .style("fill", "black")
+  .on("mouseover", function() {
+    svg.selectAll(".femaleCorrelation")
+      .transition().duration(200)
+      .style("opacity", 1);
+    svg.selectAll(".maleCorrelation")
+      .transition().duration(200)
+      .style("opacity", 0);
+  })
+  .on("mouseout", function() {
+    svg.selectAll(".femaleCorrelation, .maleCorrelation")
+      .transition().duration(200)
+      .style("opacity", 0.6);
+  });
+
+// Male legend
+legendGroup.append("circle")
+  .attr("cx", 786)
+  .attr("cy", 320)
+  .attr("r", 6)
+  .style("fill", "lightblue")
+  .on("mouseover", function() {
+    svg.selectAll(".maleCorrelation")
+      .transition().duration(200)
+      .style("opacity", 1);
+    svg.selectAll(".femaleCorrelation")
+      .transition().duration(200)
+      .style("opacity", 0);
+  })
+  .on("mouseout", function() {
+    svg.selectAll(".femaleCorrelation, .maleCorrelation")
+      .transition().duration(200)
+      .style("opacity", 0.6);
+  });
+
+legendGroup.append("text")
+  .attr("x", 800)
+  .attr("y", 325)
+  .text("Male")
+  .style("cursor", "pointer")
+  .style("fill", "black")
+  .on("mouseover", function() {
+    svg.selectAll(".maleCorrelation")
+      .transition().duration(200)
+      .style("opacity", 1);
+    svg.selectAll(".femaleCorrelation")
+      .transition().duration(200)
+      .style("opacity", 0);
+  })
+  .on("mouseout", function() {
+    svg.selectAll(".femaleCorrelation, .maleCorrelation")
+      .transition().duration(200)
+      .style("opacity", 0.6);
+  });
+
 }
 
 
@@ -386,57 +469,57 @@ document.addEventListener("DOMContentLoaded", async () => {
 //     .style("opacity", isFemale ? 0.6 : 1);
 //   }
 
-//   // create legend
-const legendGroup = svg.append("g").attr("class", "legend");
+// //   // create legend
+// const legendGroup = svg.append("g").attr("class", "legend");
 
-  legendGroup.append("circle")
-      .attr("cx", 786)
-      .attr("cy", 295)
-      .attr("r", 6)
-      .style("fill", "pink")
-      .on("click", () => toggleLegend("female"));
+//   legendGroup.append("circle")
+//       .attr("cx", 786)
+//       .attr("cy", 295)
+//       .attr("r", 6)
+//       .style("fill", "pink")
+//       .on("click", () => toggleLegend("female"));
 
-    legendGroup.append("text")
-    .attr("x", 800)
-    .attr("y", 300)
-    .text("Female")
-    .style("cursor", "pointer");
+//     legendGroup.append("text")
+//     .attr("x", 800)
+//     .attr("y", 300)
+//     .text("Female")
+//     .style("cursor", "pointer");
 
-    legendGroup.append("circle")
-    .attr("cx", 786)
-    .attr("cy", 320)
-    .attr("r", 6)
-    .style("fill", "lightblue")
-    .on("click", () => toggleLegend("male"));
+//     legendGroup.append("circle")
+//     .attr("cx", 786)
+//     .attr("cy", 320)
+//     .attr("r", 6)
+//     .style("fill", "lightblue")
+//     .on("click", () => toggleLegend("male"));
 
-    legendGroup.append("text")
-    .attr("x", 800)
-    .attr("y", 325)
-    .text("Male")
-    .style("cursor", "pointer");
+//     legendGroup.append("text")
+//     .attr("x", 800)
+//     .attr("y", 325)
+//     .text("Male")
+//     .style("cursor", "pointer");
 
-  // add title
-  svg.append("text")
-    .attr("x", width / 2)
-    .attr("y", -20)
-    .style("text-anchor", "middle")
-    .text("Pearson Correlation of Temperature and Activity")
-    .style("font-weight", "bold")
-    .style("font-size", "16px");
+//   // add title
+//   svg.append("text")
+//     .attr("x", width / 2)
+//     .attr("y", -20)
+//     .style("text-anchor", "middle")
+//     .text("Pearson Correlation of Temperature and Activity")
+//     .style("font-weight", "bold")
+//     .style("font-size", "16px");
 
-  // add axes labels
-  svg.append("text")
-    .attr("x", -height / 2)
-    .attr("y", -margin.left + 12)
-    .style("text-anchor", "middle")
-    .text("Correlation Coefficient (r)")
-    .style("transform", "rotate(-90deg)");
+//   // add axes labels
+//   svg.append("text")
+//     .attr("x", -height / 2)
+//     .attr("y", -margin.left + 12)
+//     .style("text-anchor", "middle")
+//     .text("Correlation Coefficient (r)")
+//     .style("transform", "rotate(-90deg)");
 
-  svg.append("text")
-    .attr("x", width - margin.right - 400)
-    .attr("y", height / 2 + 215)
-    .style("text-anchor", "middle")
-    .text("Day");
+//   svg.append("text")
+//     .attr("x", width - margin.right - 400)
+//     .attr("y", height / 2 + 215)
+//     .style("text-anchor", "middle")
+//     .text("Day");
 
     const subtitle = [
       "Daily Pearson correlation coefficients between core body temperature and activity level in male (n = 13) and female (n = 13) mice over 14 days."
