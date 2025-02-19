@@ -453,113 +453,254 @@ function calculateHourlyAverages(data) {
 
 let femalePlotCreated = false;
 
-async function createFemalePlots() {
-  // check if the female plot has already been created
-  if (femalePlotCreated) {
-    return; // skip creation if the plot is already created
-  }
+// async function createFemalePlots() {
+//   // check if the female plot has already been created
+//   if (femalePlotCreated) {
+//     return; // skip creation if the plot is already created
+//   }
 
-  // load data
+//   // load data
+//   const tempFiles = ["Mouse_Data_Student_Copy.xlsx - Fem Temp.csv"];
+//   const actFiles = ["Mouse_Data_Student_Copy.xlsx - Fem Act.csv"];
+//   const labels = ["f"];
+//   let temperatureData = await loadTemperatureData(tempFiles, labels);
+//   console.log("temp data:", temperatureData);
+//   let activityData = await loadActivityData(actFiles, labels);
+//   console.log("act data:", activityData);
+
+//   // process the temperature and activity data
+//   const processedTempData = calculateHourlyAverages(temperatureData);
+//   const processedActData = calculateHourlyAverages(activityData);
+
+//   console.log("processed data:", processedTempData, processedActData);
+
+//   // apply 3-hour moving average to smooth data
+//   const smoothedTempData = smoothData(processedTempData.map(d => d.value), 3);
+//   const smoothedActData = smoothData(processedActData.map(d => d.value), 3);
+
+//   console.log("smoothed data:", smoothedTempData, smoothedActData);
+
+//   // create container for axes (side by side)
+//   const axesContainer = d3.select("#female-plot");
+
+//   // create svg for the first axis (left side)
+//   const margin = { top: 50, right: 50, bottom: 100, left: 50 };
+//   const width = 500 - margin.left - margin.right;  // adjust width for side-by-side
+//   const height = 500 - margin.top - margin.bottom;
+
+//   const svg1 = axesContainer.append("svg")
+//     .attr("width", width + margin.left + margin.right)
+//     .attr("height", height + margin.top + margin.bottom)
+//     .style("display", "inline-block") // to position them side by side
+//     .append("g")
+//     .attr("transform", `translate(${margin.left},${margin.top})`);
+
+//   // set up scales for the first axis
+//   const xScale1 = d3.scaleLinear()
+//     .domain([0, d3.max(processedTempData, d => d.hour)])
+//     .range([0, width]);
+
+//   const yScale1 = d3.scaleLinear()
+//     .domain([d3.min(smoothedTempData), d3.max(smoothedTempData)])
+//     .range([height, 0]);
+
+//   // add x and y axes for the first axis
+//   svg1.append("g")
+//     .attr("transform", `translate(0,${height})`)
+//     .call(d3.axisBottom(xScale1));
+
+//   svg1.append("g")
+//     .call(d3.axisLeft(yScale1));
+
+//   svg1.append("path")
+//   .data([smoothedTempData])
+//   .attr("fill", "none")
+//   .attr("stroke", "pink")
+//   .attr("stroke-width", 2)
+//   .attr("d", d3.line()
+//     .x((d, i) => xScale1(processedTempData[i].hour))
+//     .y(d => yScale1(d))
+//   );
+
+//   // create svg for the second axis (right side)
+//   const svg2 = axesContainer.append("svg")
+//     .attr("width", width + margin.left + margin.right)
+//     .attr("height", height + margin.top + margin.bottom)
+//     .style("display", "inline-block") // to position them side by side
+//     .append("g")
+//     .attr("transform", `translate(${margin.left},${margin.top})`);
+
+//   // set up scales for the second axis
+//   const xScale2 = d3.scaleLinear()
+//     .domain([0, d3.max(processedActData, d => d.hour)])
+//     .range([0, width]);
+
+//   const yScale2 = d3.scaleLinear()
+//     .domain([d3.min(smoothedActData), d3.max(smoothedActData)])
+//     .range([height, 0]);
+
+//   // add x and y axes for the second axis
+//   svg2.append("g")
+//     .attr("transform", `translate(0,${height})`)
+//     .call(d3.axisBottom(xScale2));
+
+//   svg2.append("g")
+//     .call(d3.axisLeft(yScale2));
+
+//   // plot data
+//   svg2.append("path")
+//   .data([smoothedActData])
+//   .attr("fill", "none")
+//   .attr("stroke", "pink")
+//   .attr("stroke-width", 2)
+//   .attr("d", d3.line()
+//     .x((d, i) => xScale2(processedActData[i].hour))
+//     .y(d => yScale2(d))
+//   );
+
+//   // add axes labels for the first svg
+//   svg1.append("text")
+//     .attr("x", -height / 2)
+//     .attr("y", -margin.left + 12)
+//     .style("text-anchor", "middle")
+//     .text("Temperature (ºC)")
+//     .style("transform", "rotate(-90deg)");
+
+//   svg1.append("text")
+//     .attr("x", width - margin.right - 150)
+//     .attr("y", height / 2 + 215)
+//     .style("text-anchor", "middle")
+//     .text("Hour");
+
+//   // add axes labels for second svg
+//   svg2.append("text")
+//     .attr("x", -height / 2)
+//     .attr("y", -margin.left + 12)
+//     .style("text-anchor", "middle")
+//     .text("Activity Level")
+//     .style("transform", "rotate(-90deg)");
+
+//   svg2.append("text")
+//     .attr("x", width - margin.right - 150)
+//     .attr("y", height / 2 + 215)
+//     .style("text-anchor", "middle")
+//     .text("Hour");
+
+//   femalePlotCreated = true; // mark the female plot as created
+// }
+
+async function createFemalePlots() {
+  if (femalePlotCreated) return;
+
   const tempFiles = ["Mouse_Data_Student_Copy.xlsx - Fem Temp.csv"];
   const actFiles = ["Mouse_Data_Student_Copy.xlsx - Fem Act.csv"];
   const labels = ["f"];
   let temperatureData = await loadTemperatureData(tempFiles, labels);
-  console.log("temp data:", temperatureData);
   let activityData = await loadActivityData(actFiles, labels);
-  console.log("act data:", activityData);
 
-  // process the temperature and activity data
   const processedTempData = calculateHourlyAverages(temperatureData);
   const processedActData = calculateHourlyAverages(activityData);
 
-  console.log("processed data:", processedTempData, processedActData);
-
-  // apply 3-hour moving average to smooth data
   const smoothedTempData = smoothData(processedTempData.map(d => d.value), 3);
   const smoothedActData = smoothData(processedActData.map(d => d.value), 3);
 
-  console.log("smoothed data:", smoothedTempData, smoothedActData);
-
-  // create container for axes (side by side)
   const axesContainer = d3.select("#female-plot");
-
-  // create svg for the first axis (left side)
   const margin = { top: 50, right: 50, bottom: 100, left: 50 };
-  const width = 500 - margin.left - margin.right;  // adjust width for side-by-side
+  const width = 500 - margin.left - margin.right;
   const height = 500 - margin.top - margin.bottom;
 
+  const totalHours = 24 * 14; // 14 days of data
+
+  function addLightBars(svg, xScale) {
+    let lightPeriods = [];
+    
+    for (let day = 0; day < 14; day++) {
+      let startOn = day * 24 + 12;
+      let endOn = startOn + 12;     
+      lightPeriods.push({ start: startOn, end: endOn, color: "yellow" });
+
+      let startOff = day * 24;
+      let endOff = startOff + 12;  
+      lightPeriods.push({ start: startOff, end: endOff, color: "lightgrey" });
+    }
+
+    svg.selectAll(".light-bar")
+      .data(lightPeriods)
+      .enter()
+      .append("rect")
+      .attr("class", "light-bar")
+      .attr("x", d => xScale(d.start))
+      .attr("width", d => xScale(d.end) - xScale(d.start))
+      .attr("y", 0)
+      .attr("height", height)
+      .attr("fill", d => d.color)
+      .attr("opacity", 0.2);
+  }
+
+  // create temperature plot
   const svg1 = axesContainer.append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
-    .style("display", "inline-block") // to position them side by side
+    .style("display", "inline-block")
     .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  // set up scales for the first axis
   const xScale1 = d3.scaleLinear()
-    .domain([0, d3.max(processedTempData, d => d.hour)])
+    .domain([0, totalHours])
     .range([0, width]);
 
   const yScale1 = d3.scaleLinear()
     .domain([d3.min(smoothedTempData), d3.max(smoothedTempData)])
     .range([height, 0]);
 
-  // add x and y axes for the first axis
-  svg1.append("g")
-    .attr("transform", `translate(0,${height})`)
-    .call(d3.axisBottom(xScale1));
+  addLightBars(svg1, xScale1);
 
-  svg1.append("g")
-    .call(d3.axisLeft(yScale1));
+  svg1.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(xScale1));
+  svg1.append("g").call(d3.axisLeft(yScale1));
 
   svg1.append("path")
-  .data([smoothedTempData])
-  .attr("fill", "none")
-  .attr("stroke", "pink")
-  .attr("stroke-width", 2)
-  .attr("d", d3.line()
-    .x((d, i) => xScale1(processedTempData[i].hour))
-    .y(d => yScale1(d))
-  );
+    .data([smoothedTempData])
+    .attr("fill", "none")
+    .attr("stroke", "pink")
+    .attr("stroke-width", 2)
+    .attr("d", d3.line()
+      .x((d, i) => xScale1(processedTempData[i].hour))
+      .y(d => yScale1(d))
+    );
 
-  // create svg for the second axis (right side)
+  // create activity plot
   const svg2 = axesContainer.append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
-    .style("display", "inline-block") // to position them side by side
+    .style("display", "inline-block")
     .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  // set up scales for the second axis
   const xScale2 = d3.scaleLinear()
-    .domain([0, d3.max(processedActData, d => d.hour)])
+    .domain([0, totalHours])
     .range([0, width]);
 
   const yScale2 = d3.scaleLinear()
     .domain([d3.min(smoothedActData), d3.max(smoothedActData)])
     .range([height, 0]);
 
-  // add x and y axes for the second axis
-  svg2.append("g")
-    .attr("transform", `translate(0,${height})`)
-    .call(d3.axisBottom(xScale2));
+  addLightBars(svg2, xScale2);
 
-  svg2.append("g")
-    .call(d3.axisLeft(yScale2));
+  svg2.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(xScale2));
+  svg2.append("g").call(d3.axisLeft(yScale2));
 
-  // plot data
   svg2.append("path")
-  .data([smoothedActData])
-  .attr("fill", "none")
-  .attr("stroke", "pink")
-  .attr("stroke-width", 2)
-  .attr("d", d3.line()
-    .x((d, i) => xScale2(processedActData[i].hour))
-    .y(d => yScale2(d))
-  );
+    .data([smoothedActData])
+    .attr("fill", "none")
+    .attr("stroke", "pink")
+    .attr("stroke-width", 2)
+    .attr("d", d3.line()
+      .x((d, i) => xScale2(processedActData[i].hour))
+      .y(d => yScale2(d))
+    );
 
-  // add axes labels for the first svg
-  svg1.append("text")
+    // add axes labels for the first svg
+    svg1.append("text")
     .attr("x", -height / 2)
     .attr("y", -margin.left + 12)
     .style("text-anchor", "middle")
@@ -571,6 +712,15 @@ async function createFemalePlots() {
     .attr("y", height / 2 + 215)
     .style("text-anchor", "middle")
     .text("Hour");
+
+  // add title for first svg
+    svg1.append("text")
+      .attr("x", width / 2)
+      .attr("y", -margin.top / 2)
+      .attr("text-anchor", "middle")
+      .style("font-size", "16px")
+      .style("font-weight", "bold")
+      .text("Average Core Body Temperature of Female Mice Over 14 Days");
 
   // add axes labels for second svg
   svg2.append("text")
@@ -586,118 +736,122 @@ async function createFemalePlots() {
     .style("text-anchor", "middle")
     .text("Hour");
 
-  femalePlotCreated = true; // mark the female plot as created
+  // add title for second svg
+  svg2.append("text")
+  .attr("x", width / 2)
+  .attr("y", -margin.top / 2)
+  .attr("text-anchor", "middle")
+  .style("font-size", "16px")
+  .style("font-weight", "bold")
+  .text("Average Activity Levels of Female Mice Over 14 Days");
+
+  femalePlotCreated = true;
 }
 
 let malePlotCreated = false;
 
 async function createMalePlots() {
-  // check if the male plot has already been created
-  if (malePlotCreated) {
-    return; // skip creation if the plot is already created
-  }
+  if (malePlotCreated) return;
 
-  // load data
   const tempFiles = ["Mouse_Data_Student_Copy.xlsx - Male Temp.csv"];
   const actFiles = ["Mouse_Data_Student_Copy.xlsx - Male Act.csv"];
   const labels = ["m"];
   let temperatureData = await loadTemperatureData(tempFiles, labels);
-  console.log("temp data:", temperatureData);
   let activityData = await loadActivityData(actFiles, labels);
-  console.log("act data:", activityData);
 
-  // process the temperature and activity data
   const processedTempData = calculateHourlyAverages(temperatureData);
   const processedActData = calculateHourlyAverages(activityData);
 
-  console.log("processed data:", processedTempData, processedActData);
-
-  // apply 3-hour moving average to smooth data
   const smoothedTempData = smoothData(processedTempData.map(d => d.value), 3);
   const smoothedActData = smoothData(processedActData.map(d => d.value), 3);
 
-  console.log("smoothed data:", smoothedTempData, smoothedActData);
-
-  // create container for axes (side by side)
   const axesContainer = d3.select("#male-plot");
-
-  // create svg for the first axis (left side)
   const margin = { top: 50, right: 50, bottom: 100, left: 50 };
-  const width = 500 - margin.left - margin.right;  // adjust width for side-by-side
+  const width = 500 - margin.left - margin.right;
   const height = 500 - margin.top - margin.bottom;
 
+  const totalHours = 24 * 14;
+
+  function addLightBars(svg, xScale) {
+    let lightPeriods = [];
+
+    for (let day = 0; day < 14; day++) {
+      let startOn = day * 24 + 12;  
+      let endOn = startOn + 12;     
+      lightPeriods.push({ start: startOn, end: endOn, color: "yellow" });
+
+      let startOff = day * 24;      
+      let endOff = startOff + 12;   
+      lightPeriods.push({ start: startOff, end: endOff, color: "lightgrey" });
+    }
+
+    svg.selectAll(".light-bar")
+      .data(lightPeriods)
+      .enter()
+      .append("rect")
+      .attr("class", "light-bar")
+      .attr("x", d => xScale(d.start))
+      .attr("width", d => xScale(d.end) - xScale(d.start))
+      .attr("y", 0)
+      .attr("height", height)
+      .attr("fill", d => d.color)
+      .attr("opacity", 0.2);
+  }
+
+  // create temperature plot
   const svg1 = axesContainer.append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
-    .style("display", "inline-block") // to position them side by side
+    .style("display", "inline-block")
     .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  // set up scales for the first axis
-  const xScale1 = d3.scaleLinear()
-    .domain([0, d3.max(processedTempData, d => d.hour)])
-    .range([0, width]);
+  const xScale1 = d3.scaleLinear().domain([0, totalHours]).range([0, width]);
+  const yScale1 = d3.scaleLinear().domain([d3.min(smoothedTempData), d3.max(smoothedTempData)]).range([height, 0]);
 
-  const yScale1 = d3.scaleLinear()
-    .domain([d3.min(smoothedTempData), d3.max(smoothedTempData)])
-    .range([height, 0]);
+  addLightBars(svg1, xScale1);
 
-  // add x and y axes for the first axis
-  svg1.append("g")
-    .attr("transform", `translate(0,${height})`)
-    .call(d3.axisBottom(xScale1));
-
-  svg1.append("g")
-    .call(d3.axisLeft(yScale1));
+  svg1.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(xScale1));
+  svg1.append("g").call(d3.axisLeft(yScale1));
 
   svg1.append("path")
-  .data([smoothedTempData])
-  .attr("fill", "none")
-  .attr("stroke", "lightblue")
-  .attr("stroke-width", 2)
-  .attr("d", d3.line()
-    .x((d, i) => xScale1(processedTempData[i].hour))
-    .y(d => yScale1(d))
-  );
+    .data([smoothedTempData])
+    .attr("fill", "none")
+    .attr("stroke", "lightblue")
+    .attr("stroke-width", 2)
+    .attr("d", d3.line()
+      .x((d, i) => xScale1(processedTempData[i].hour))
+      .y(d => yScale1(d))
+    );
 
-  // create svg for the second axis (right side)
+  // create activity plot
   const svg2 = axesContainer.append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
-    .style("display", "inline-block") // to position them side by side
+    .style("display", "inline-block")
     .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  // set up scales for the second axis
-  const xScale2 = d3.scaleLinear()
-    .domain([0, d3.max(processedActData, d => d.hour)])
-    .range([0, width]);
+  const xScale2 = d3.scaleLinear().domain([0, totalHours]).range([0, width]);
+  const yScale2 = d3.scaleLinear().domain([d3.min(smoothedActData), d3.max(smoothedActData)]).range([height, 0]);
 
-  const yScale2 = d3.scaleLinear()
-    .domain([d3.min(smoothedActData), d3.max(smoothedActData)])
-    .range([height, 0]);
+  addLightBars(svg2, xScale2);
 
-  // add x and y axes for the second axis
-  svg2.append("g")
-    .attr("transform", `translate(0,${height})`)
-    .call(d3.axisBottom(xScale2));
+  svg2.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(xScale2));
+  svg2.append("g").call(d3.axisLeft(yScale2));
 
-  svg2.append("g")
-    .call(d3.axisLeft(yScale2));
-
-  // plot data
   svg2.append("path")
-  .data([smoothedActData])
-  .attr("fill", "none")
-  .attr("stroke", "lightblue")
-  .attr("stroke-width", 2)
-  .attr("d", d3.line()
-    .x((d, i) => xScale2(processedActData[i].hour))
-    .y(d => yScale2(d))
-  );
+    .data([smoothedActData])
+    .attr("fill", "none")
+    .attr("stroke", "lightblue")
+    .attr("stroke-width", 2)
+    .attr("d", d3.line()
+      .x((d, i) => xScale2(processedActData[i].hour))
+      .y(d => yScale2(d))
+    );
 
-  // add axes labels for the first svg
-  svg1.append("text")
+    // add axes labels for the first svg
+    svg1.append("text")
     .attr("x", -height / 2)
     .attr("y", -margin.left + 12)
     .style("text-anchor", "middle")
@@ -709,6 +863,15 @@ async function createMalePlots() {
     .attr("y", height / 2 + 215)
     .style("text-anchor", "middle")
     .text("Hour");
+
+  // add title for first svg
+  svg1.append("text")
+  .attr("x", width / 2)
+  .attr("y", -margin.top / 2)
+  .attr("text-anchor", "middle")
+  .style("font-size", "16px")
+  .style("font-weight", "bold")
+  .text("Average Core Body Temperature of Male Mice Over 14 Days");
 
   // add axes labels for second svg
   svg2.append("text")
@@ -724,7 +887,16 @@ async function createMalePlots() {
     .style("text-anchor", "middle")
     .text("Hour");
 
-  malePlotCreated = true; // mark the female plot as created
+  // add title for second svg
+  svg2.append("text")
+  .attr("x", width / 2)
+  .attr("y", -margin.top / 2)
+  .attr("text-anchor", "middle")
+  .style("font-size", "16px")
+  .style("font-weight", "bold")
+  .text("Average Activity Levels of Male Mice Over 14 Days");
+
+  malePlotCreated = true;
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
