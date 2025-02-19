@@ -212,8 +212,8 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
       .on("mouseover", function (event, d) {
         tooltip.style("visibility", "visible")
           .text(`${d.toFixed(3)}`)
-          .style("top", `${event.clientY - svgRect.top + 40}px` )
-          .style("left", `${event.clientX -svgRect.left + 300}px`);
+          .style("top", `${event.pageY - svgRect.top + 20}px `)
+          .style("left", `${event.pageX- svgRect.left + 150}px`);
       })
       .on("mouseout", function () {
         tooltip.style("visibility", "hidden");
@@ -241,8 +241,8 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
       .on("mouseover", function (event, d) {
         tooltip.style("visibility", "visible")
           .text(`${d.toFixed(3)}`)
-          .style("top", `${event.clientY - svgRect.top + 40}px `)
-          .style("left", `${event.clientX- svgRect.left + 300}px`);
+          .style("top", `${event.pageY - svgRect.top + 20}px `)
+          .style("left", `${event.pageX- svgRect.left + 150}px`);
       })
       .on("mouseout", function () {
         tooltip.style("visibility", "hidden");
