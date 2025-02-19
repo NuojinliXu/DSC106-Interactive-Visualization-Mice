@@ -89,15 +89,14 @@ p {
 }
 
 .tooltip {
-  position: absolute;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  padding: 8px 12px;
+  font-size: 12px;
+  color: black;
+  background-color: white;
+  border: 1px solid black;
+  padding: 5px;
   border-radius: 5px;
-  font-size: 14px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease-in-out;
+  position: absolute;
+  visibility: hidden;
 }
 
 @keyframes marching-ants {
@@ -116,4 +115,31 @@ p {
 
 circle.selected {
   fill: #9c79ce !important;
+}
+
+#chart-container {
+  position: relative; /* Make the container a positioning context */
+}
+
+/* Style for the toggle container */
+#toggle-container {
+  position: absolute; /* Position the toggle button absolutely within the chart container */
+  top: 10px; /* Adjust the distance from the top */
+  right: 10px; /* Adjust the distance from the right */
+  z-index: 10; /* Ensure the toggle button is above the chart */
+}
+
+/* Style for the toggle button */
+#dataToggle {
+  padding: 5px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: grey;
+  cursor: pointer;
+}
+
+/* Optional: Add hover effect to the toggle button */
+#dataToggle:hover {
+  background-color: #302e2e;
 }

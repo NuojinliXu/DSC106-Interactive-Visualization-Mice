@@ -12,6 +12,19 @@
     <body>
         <h3>Sex Differences in the Relationship Between Core Body Temperature and Activity Levels in Mice</h3>
         <p>How are core body temperature and activity level related in male versus female mice?</p>
+
+        <!-- Chart container with toggle button -->
+        <div id="chart-container">
+            <div id="toggle-container">
+                <select id="dataToggle">
+                    <option value="all">All Data</option>
+                    <option value="day">Day Data</option>
+                    <option value="night">Night Data</option>
+                </select>
+            </div>
+            <div id="chart"></div>
+        </div>
+        
         <div id="chart-container">
             <div id="chart"></div>
         </div>
@@ -29,10 +42,10 @@
             <div id="female-plot"></div>
         </div>
 
-        <div id="controls">
+        <!-- <div id="controls">
             <label><input type="checkbox" id="showLightsOn" checked>Show Lights On</label>
             <label><input type="checkbox" id="showLightsOff" checked>Show Lights Off</label>
-        </div>
+        </div> -->
 
         <div id="chart-container">
             <div id="male-plot"></div>
