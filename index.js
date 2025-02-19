@@ -637,6 +637,27 @@ async function createFemalePlots() {
       .attr("opacity", 0.2);
   }
 
+  function addEstrusCycleBar(svg, xScale) {
+    let estrusPeriods = [];
+    
+    for (let cycleStart = 24; cycleStart < totalHours; cycleStart += 96) {
+      let cycleEnd = cycleStart + 24;
+      estrusPeriods.push({ start: cycleStart, end: cycleEnd });
+    }
+  
+    svg.selectAll(".estrus-bar")
+      .data(estrusPeriods)
+      .enter()
+      .append("rect")
+      .attr("class", "estrus-bar")
+      .attr("x", d => xScale(d.start))
+      .attr("width", d => xScale(d.end) - xScale(d.start))
+      .attr("y", -10) // Positioned at the top
+      .attr("height", 10)
+      .attr("fill", "pink") // Pink for estrus cycle
+      .attr("opacity", 0.6);
+  }
+
   // create temperature plot
   const svg1 = axesContainer.append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -654,6 +675,7 @@ async function createFemalePlots() {
     .range([height, 0]);
 
   addLightBars(svg1, xScale1);
+  addEstrusCycleBar(svg1, xScale1);
 
   svg1.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(xScale1));
   svg1.append("g").call(d3.axisLeft(yScale1));
@@ -685,6 +707,7 @@ async function createFemalePlots() {
     .range([height, 0]);
 
   addLightBars(svg2, xScale2);
+  addEstrusCycleBar(svg2, xScale2);
 
   svg2.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(xScale2));
   svg2.append("g").call(d3.axisLeft(yScale2));
