@@ -1,3 +1,7 @@
+function $$(selector, context = document) {
+  return Array.from(context.querySelectorAll(selector));
+}
+
 let pages = [
     { url: '', title: 'Visualization' },
     { url: 'write-up/', title: 'Write-Up' },
