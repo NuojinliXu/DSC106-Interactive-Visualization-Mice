@@ -7,6 +7,7 @@ let maleDailyCorrelations = [];
 
 let currentGenderSelection = "all";
 let currentDataSelection = "all"; // Default: show all data
+var brushSelection;
 
 async function loadTemperatureData(filenames, labels) {
   let data = [];
@@ -56,10 +57,10 @@ async function loadActivityData(filenames, labels) {
 function smoothData(data, window_size) {
   let smoothedData = [];
   for (let i = 0; i < data.length; i++) {
-      const start = Math.max(0, i - Math.floor(window_size / 2));
-      const end = Math.min(data.length, i + Math.floor(window_size / 2) + 1);
-      const window = data.slice(start, end);
-      smoothedData.push(d3.mean(window));
+    const start = Math.max(0, i - Math.floor(window_size / 2));
+    const end = Math.min(data.length, i + Math.floor(window_size / 2) + 1);
+    const window = data.slice(start, end);
+    smoothedData.push(d3.mean(window));
   }
   return smoothedData;
 }
@@ -73,7 +74,7 @@ function pearsonCorrelation(x, y) {
   const sumY2 = d3.sum(y.map(yi => yi * yi));
 
   const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
-  
+
   return ((n * sumXY) - (sumX * sumY)) / denominator;
 }
 
@@ -134,14 +135,14 @@ function calculateCorrelations() {
     maleTemp = getDayData(maleTempData);
     maleAct = getDayData(maleActData);
     minutesPerPeriod = 720;  // Only half of each day
-  
+
   } else if (currentDataSelection === "night") {
     femaleTemp = getNightData(femaleTempData);
     femaleAct = getNightData(femaleActData);
     maleTemp = getNightData(maleTempData);
     maleAct = getNightData(maleActData);
     minutesPerPeriod = 720;  // Only half of each day
-  
+
   } else {
     femaleTemp = femaleTempData;
     femaleAct = femaleActData;
@@ -194,8 +195,7 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
 
   const svg = d3.select("#chart svg");
 
-  // Ensure height is defined inside the function
-  const height = 500;
+
   const yScale = d3.scaleLinear().domain([-1, 1]).range([height, 0]);
 
   // Update female circles
@@ -205,25 +205,25 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
   femaleCircles.join(
     enter => enter.append("circle")
       .attr("class", "femaleCorrelation")
-      .attr("cx", (d, i) => xScale(i + 2)) 
+      .attr("cx", (d, i) => xScale(i + 1))
       .attr("cy", d => yScale(d))
       .attr("r", 5)
       .style("fill", "pink")
       .style("opacity", 0.6)
       .style("opacity", currentGenderSelection === "female" ? 1 : 0.6)
-      .on("mouseover", function(event, d) {
+      .on("mouseover", function (event, d) {
         tooltip.style("visibility", "visible")
           .text(`${d.toFixed(3)}`);
       })
-      .on("mousemove", function(event) {
+      .on("mousemove", function (event) {
         tooltip.style("top", (event.pageY - 10) + "px")
           .style("left", (event.pageX + 10) + "px");
       })
-      .on("mouseout", function() {
+      .on("mouseout", function () {
         tooltip.style("visibility", "hidden");
       }),
     update => update.transition().duration(500)
-      .attr("cx", (d, i) => xScale(i + 2)) 
+      .attr("cx", (d, i) => xScale(i + 1))
       .attr("cy", d => yScale(d))
       .style("opacity", currentGenderSelection === "female" ? 1 : 0.6),
     exit => exit.remove()
@@ -237,25 +237,25 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
   maleCircles.join(
     enter => enter.append("circle")
       .attr("class", "maleCorrelation")
-      .attr("cx", (d, i) => xScale(i + 2))
+      .attr("cx", (d, i) => xScale(i + 1))
       .attr("cy", d => yScale(d))
       .attr("r", 5)
       .style("fill", "lightblue")
       .style("opacity", 0.6)
       .style("opacity", currentGenderSelection === "male" ? 1 : 0.6)
-      .on("mouseover", function(event, d) {
+      .on("mouseover", function (event, d) {
         tooltip.style("visibility", "visible")
           .text(`${d.toFixed(3)}`);
       })
-      .on("mousemove", function(event) {
+      .on("mousemove", function (event) {
         tooltip.style("top", (event.pageY - 10) + "px")
           .style("left", (event.pageX + 10) + "px");
       })
-      .on("mouseout", function() {
+      .on("mouseout", function () {
         tooltip.style("visibility", "hidden");
       }),
     update => update.transition().duration(500)
-      .attr("cx", (d, i) => xScale(i + 2)) 
+      .attr("cx", (d, i) => xScale(i + 1))
       .attr("cy", d => yScale(d))
       .style("opacity", currentGenderSelection === "male" ? 1 : 0.6),
     exit => exit.remove()
@@ -271,8 +271,8 @@ const height = 500 - margin.top - margin.bottom;
 const svg = d3.select("#chart").append("svg")
   .attr("width", width + margin.left + margin.right)
   .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-  .attr("transform", `translate(${margin.left},${margin.top})`);
+  .attr("viewBox", "-50 -50 1000 500")
+  .attr("class", "correlationPlot");
 
 // set up scales
 const xScale = d3.scaleLinear()
@@ -294,7 +294,7 @@ svg.append("g")
 
 svg.append("g")
   .call(d3.axisLeft(yScale));
-  
+
 
 // add title
 svg.append("text")
@@ -320,7 +320,7 @@ svg.append("text")
   .text("Day");
 
 // Add toggle switch
-document.getElementById("dataToggle").addEventListener("change", function() {
+document.getElementById("dataToggle").addEventListener("change", function () {
   currentDataSelection = this.value;
   console.log("Data selection changed to:", currentDataSelection);
   calculateCorrelations();
@@ -376,220 +376,219 @@ document.addEventListener("DOMContentLoaded", async () => {
 //   // toggle opacity
 // function toggleLegend(legend) {
 //   const isFemale = (legend === "female");
-  
+
 //   svg.selectAll(".femaleCorrelation")
 //     .transition()
 //     .style("opacity", isFemale ? 1 : 0.6);
-  
+
 //   svg.selectAll(".maleCorrelation")
 //     .transition()
 //     .style("opacity", isFemale ? 0.6 : 1);
 //   }
-  
+
 //   // create legend
-//   const legendGroup = svg.append("g").attr("class", "legend");
-  
-//   legendGroup.append("circle")
-//   .attr("cx", 786)
-//   .attr("cy", 295)
-//   .attr("r", 6)
-//   .style("fill", "pink")
-//   .on("click", () => toggleLegend("female"));
-  
-//   legendGroup.append("text")
-//   .attr("x", 800)
-//   .attr("y", 300)
-//   .text("Female")
-//   .style("cursor", "pointer");
-  
-//   legendGroup.append("circle")
-//   .attr("cx", 786)
-//   .attr("cy", 320)
-//   .attr("r", 6)
-//   .style("fill", "lightblue")
-//   .on("click", () => toggleLegend("male"));
-  
-//   legendGroup.append("text")
-//   .attr("x", 800)
-//   .attr("y", 325)
-//   .text("Male")
-//   .style("cursor", "pointer");
-  
-//   // add title
-//   svg.append("text")
-//     .attr("x", width / 2)
-//     .attr("y", -20)
-//     .style("text-anchor", "middle")
-//     .text("Pearson Correlation of Temperature and Activity")
-//     .style("font-weight", "bold")
-//     .style("font-size", "16px");
-  
-//   // add axes labels
-//   svg.append("text")
-//     .attr("x", -height / 2)
-//     .attr("y", -margin.left + 12)
-//     .style("text-anchor", "middle")
-//     .text("Correlation Coefficient (r)")
-//     .style("transform", "rotate(-90deg)");
-  
-//   svg.append("text")
-//     .attr("x", width - margin.right - 400)
-//     .attr("y", height / 2 + 215)
-//     .style("text-anchor", "middle")
-//     .text("Day");
-  
-//     const subtitle = [
-//       "Daily Pearson correlation coefficients between core body temperature and activity level in male (n = 13) and female (n = 13) mice over 14 days."
-//     ];
-    
-//     const lineHeight = 16;
-//     const fontSize = "12px";
-    
-//     // add plot description
-//     subtitle.forEach((line, index) => {
-//       svg.append("text")
-//         .attr("x", width / 2)
-//         .attr("y", height + 60 + index * lineHeight)
-//         .attr("text-anchor", "middle")
-//         .style("font-size", fontSize)
-//         .text(line);
-//     });
-  
+const legendGroup = svg.append("g").attr("class", "legend");
+
+  legendGroup.append("circle")
+      .attr("cx", 786)
+      .attr("cy", 295)
+      .attr("r", 6)
+      .style("fill", "pink")
+      .on("click", () => toggleLegend("female"));
+
+    legendGroup.append("text")
+    .attr("x", 800)
+    .attr("y", 300)
+    .text("Female")
+    .style("cursor", "pointer");
+
+    legendGroup.append("circle")
+    .attr("cx", 786)
+    .attr("cy", 320)
+    .attr("r", 6)
+    .style("fill", "lightblue")
+    .on("click", () => toggleLegend("male"));
+
+    legendGroup.append("text")
+    .attr("x", 800)
+    .attr("y", 325)
+    .text("Male")
+    .style("cursor", "pointer");
+
+  // add title
+  svg.append("text")
+    .attr("x", width / 2)
+    .attr("y", -20)
+    .style("text-anchor", "middle")
+    .text("Pearson Correlation of Temperature and Activity")
+    .style("font-weight", "bold")
+    .style("font-size", "16px");
+
+  // add axes labels
+  svg.append("text")
+    .attr("x", -height / 2)
+    .attr("y", -margin.left + 12)
+    .style("text-anchor", "middle")
+    .text("Correlation Coefficient (r)")
+    .style("transform", "rotate(-90deg)");
+
+  svg.append("text")
+    .attr("x", width - margin.right - 400)
+    .attr("y", height / 2 + 215)
+    .style("text-anchor", "middle")
+    .text("Day");
+
+    const subtitle = [
+      "Daily Pearson correlation coefficients between core body temperature and activity level in male (n = 13) and female (n = 13) mice over 14 days."
+    ];
+
+    const lineHeight = 16;
+    const fontSize = "12px";
+
+    // add plot description
+    subtitle.forEach((line, index) => {
+      svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", height + 60 + index * lineHeight)
+        .attr("text-anchor", "middle")
+        .style("font-size", fontSize)
+        .text(line);
+    });
+
 //   // add x and y axes
 //   svg.append("g")
 //     .attr("transform", `translate(0,${height})`)
 //     .call(d3.axisBottom(xScale).ticks(14));
-  
-  
-//   svg.append("g")
-//     .call(d3.axisLeft(yScale));
-//     legendGroup.selectAll("text, circle")
-//     .on("mouseover", function(event, d) {
-//       const text = d3.select(this).text();
-  
-//       if (text === "Female") {
-//         svg.selectAll(".femaleCorrelation")
-//           .each(function() { d3.select(this).raise(); }) // bring to front
-//           .transition().duration(200)
-//           .style("opacity", 1);
-  
-//         svg.selectAll(".maleCorrelation")
-//           .transition().duration(200)
-//           .style("opacity", 0);
-  
-//       } else if (text === "Male") {
-//         svg.selectAll(".maleCorrelation")
-//           .each(function() { d3.select(this).raise(); }) // bring to front
-//           .transition().duration(200)
-//           .style("opacity", 1);
-  
-//         svg.selectAll(".femaleCorrelation")
-//           .transition().duration(200)
-//           .style("opacity", 0);
-//       }
-//     })
-  
-//     .on("mouseout", function() {
-//       svg.selectAll(".femaleCorrelation, .maleCorrelation")
-//         .transition().duration(200)
-//         .style("opacity", 0.6);
-//     });
-  
-  // //curve
-  // const femaleTrendLine = d3.line()
-  //   .x((d, i) => xScale(i + 1))
-  //   .y(d => yScale(d))
-  //   .curve(d3.curveBasis); // Smooth the curve
-  
-  // const maleTrendLine = d3.line()
-  //   .x((d, i) => xScale(i + 1))
-  //   .y(d => yScale(d))
-  //   .curve(d3.curveBasis);
-  
-  // // Draw a trend line for female mice
-  // svg.append("path")
-  //   .datum(femaleDailyCorrelations)
-  //   .attr("class", "femaleTrendLine") 
-  //   .attr("fill", "none")
-  //   .attr("stroke", "pink")
-  //   .attr("stroke-width", 2)
-  //   .attr("d", femaleTrendLine)
-  //   .style("opacity", 0.7);
-  
-  // svg.append("path")
-  //   .datum(maleDailyCorrelations)
-  //   .attr("class", "maleTrendLine") 
-  //   .attr("fill", "none")
-  //   .attr("stroke", "lightblue")
-  //   .attr("stroke-width", 2)
-  //   .attr("d", maleTrendLine)
-  //   .style("opacity", 0.7);
-  
-  //   brushSelector();
 
-// var brushSelection;
-// function brushSelector() {
-//   const svg = document.querySelector('.correlationPlot');
-//   d3.select(svg).call(d3.brush().on("start brush end", brushed));
-//   d3.select(svg).selectAll(".maleCorrelation, .femaleCorrelation").raise();
-//   d3.select(svg).selectAll("text")
-//     .style("fill", "black")
-//     .style("opacity", 1)      
-//     .raise();
-//   d3.select(svg).selectAll(".legend").raise();
-// }
 
-// function brushed(event) {
-//   brushSelection = event.selection;
-//   updateSelection();
-//   updateSelectionCount();
-//   updateSelectionMean();
-// }
+  // svg.append("g")
+  //   .call(d3.axisLeft(yScale));
+  //   legendGroup.selectAll("text, circle")
+  //   .on("mouseover", function(event, d) {
+  //     const text = d3.select(this).text();
+  //     if (text === "Female") {
+  //       svg.selectAll(".femaleCorrelation")
+  //         .each(function() { d3.select(this).raise(); }) // bring to front
+  //         .transition().duration(200)
+  //         .style("opacity", 1);
 
-// function isSelected(idx, correlation) {
-//   if (!brushSelection) {
-//     return false;
-//   }
-//   const min = { x: brushSelection[0][0], y: brushSelection[0][1] }; 
-//   const max = { x: brushSelection[1][0], y: brushSelection[1][1] }; 
-//   const x = xScale(idx+ 1); 
-//   const y = yScale(correlation); 
-//   return x > min.x && x < max.x && y > min.y && y < max.y;
-// }
+  //       svg.selectAll(".maleCorrelation")
+  //         .transition().duration(200)
+  //         .style("opacity", 0);
 
-// function updateSelection() {
-//   d3.selectAll('.maleCorrelation').classed('selected', (d, idx) => isSelected(idx, d));
-//   d3.selectAll('.femaleCorrelation').classed('selected', (d, idx) => isSelected(idx, d));
-// }
+  //     } else if (text === "Male") {
+  //       svg.selectAll(".maleCorrelation")
+  //         .each(function() { d3.select(this).raise(); }) // bring to front
+  //         .transition().duration(200)
+  //         .style("opacity", 1);
 
-// function updateSelectionCount(){
-//   const countElement = document.getElementById('selectionCount');
-//   countElement.textContent = `${
-//     d3.selectAll("circle.selected").size() || 'No'
-//   }  selected`;
-// }
-// function mean(arr) {
-//   if (arr.length === 0) return NaN; // Handle empty array
-//   return arr.reduce((sum, val) => sum + val, 0) / arr.length;
-// }
+  //       svg.selectAll(".femaleCorrelation")
+  //         .transition().duration(200)
+  //         .style("opacity", 0);
+  //     }
+  //   })
+  //   .on("mouseout", function() {
+  //     svg.selectAll(".femaleCorrelation, .maleCorrelation")
+  //       .transition().duration(200)
+  //       .style("opacity", 0.6);
+  //   });
 
-// function updateSelectionMean() {
-//   const meanElement = document.getElementById('selectionMean');
-  
-//   const femaleSelectedCommits = brushSelection
-//     ? femaleDailyCorrelations.filter((d,idx) => isSelected(idx, d))
-//     : [];
-//   const maleSelectedCommits = brushSelection
-//     ? maleDailyCorrelations.filter((d,idx) => isSelected(idx, d))
-//     : [];
-//   if ((femaleSelectedCommits.length === 0) && (maleDailyCorrelations.length === 0)){
-//     meanElement.innerHTML = ""
-//   }
-//   meanElement.innerHTML = `Female Correlation Mean: ${mean(femaleSelectedCommits)}<br>
-//   Male Correlation Mean: ${mean(maleSelectedCommits)} <br>
-//   Total Mean: ${mean(femaleSelectedCommits.concat(maleSelectedCommits))}`;
+// //curve
+// const femaleTrendLine = d3.line()
+//   .x((d, i) => xScale(i + 1))
+//   .y(d => yScale(d))
+//   .curve(d3.curveBasis); // Smooth the curve
 
-// }
+// const maleTrendLine = d3.line()
+//   .x((d, i) => xScale(i + 1))
+//   .y(d => yScale(d))
+//   .curve(d3.curveBasis);
+
+// // Draw a trend line for female mice
+// svg.append("path")
+//   .datum(femaleDailyCorrelations)
+//   .attr("class", "femaleTrendLine") 
+//   .attr("fill", "none")
+//   .attr("stroke", "pink")
+//   .attr("stroke-width", 2)
+//   .attr("d", femaleTrendLine)
+//   .style("opacity", 0.7);
+
+// svg.append("path")
+//   .datum(maleDailyCorrelations)
+//   .attr("class", "maleTrendLine") 
+//   .attr("fill", "none")
+//   .attr("stroke", "lightblue")
+//   .attr("stroke-width", 2)
+//   .attr("d", maleTrendLine)
+//   .style("opacity", 0.7);
+
+brushSelector();
+
+
+function brushSelector() {
+  const svg = document.querySelector('.correlationPlot');
+  console.log(svg)
+  d3.select(svg).call(d3.brush().on("start brush end", brushed));
+  d3.select(svg).selectAll(".maleCorrelation, .femaleCorrelation").raise();
+  d3.select(svg).selectAll("text")
+    .style("fill", "black")
+    .style("opacity", 1)      
+    .raise();
+  d3.select(svg).selectAll(".legend").raise();
+}
+
+function brushed(event) {
+  brushSelection = event.selection;
+  updateSelection();
+  updateSelectionCount();
+  updateSelectionMean();
+}
+
+function isSelected(correlation, idx) {
+  if (!brushSelection) {
+    return false;
+  }
+  const min = { x: brushSelection[0][0], y: brushSelection[0][1] }; 
+  const max = { x: brushSelection[1][0], y: brushSelection[1][1] }; 
+  const x = xScale(idx+1); 
+  const y = yScale(correlation); 
+  return x >= min.x && x <= max.x && y >= min.y && y <= max.y;
+}
+
+function updateSelection() {
+  d3.selectAll('.maleCorrelation').classed('selected', (d, idx) => isSelected(d, idx));
+  d3.selectAll('.femaleCorrelation').classed('selected', (d, idx) => isSelected(d, idx));
+}
+
+function updateSelectionCount(){
+  const countElement = document.getElementById('selectionCount');
+  countElement.textContent = `${
+    d3.selectAll("circle.selected").size() || 'No'
+  }  selected`;
+}
+function mean(arr) {
+  if (arr.length === 0) return NaN; 
+  return arr.reduce((sum, val) => sum + val, 0) / arr.length;
+}
+
+function updateSelectionMean() {
+  const meanElement = document.getElementById('selectionMean');
+
+  const femaleSelectedCommits = brushSelection
+    ? femaleDailyCorrelations.filter((d,idx) => isSelected(idx, d))
+    : [];
+  const maleSelectedCommits = brushSelection
+    ? maleDailyCorrelations.filter((d,idx) => isSelected(idx, d))
+    : [];
+  if ((femaleSelectedCommits.length === 0) && (maleDailyCorrelations.length === 0)){
+    meanElement.innerHTML = ``;
+  }
+  meanElement.innerHTML = `Female Correlation Mean: ${mean(femaleSelectedCommits)}<br>
+  Male Correlation Mean: ${mean(maleSelectedCommits)} <br>
+  Total Mean: ${mean(femaleSelectedCommits.concat(maleSelectedCommits))}`;
+
+}
 function updateVisibility() {
   const showFemale = document.getElementById("toggleFemale").checked;
   const showMale = document.getElementById("toggleMale").checked;
@@ -602,12 +601,12 @@ function updateVisibility() {
 
   const axesContainer2 = d3.select("#male-plot");
   axesContainer2.style("display", showMale ? "inline-block" : "none");
-  
+
   const svg = d3.select("#chart svg");
 
   // bring to front
   if (showFemale) {
-    svg.selectAll(".femaleCorrelation").each(function() {
+    svg.selectAll(".femaleCorrelation").each(function () {
       d3.select(this).raise();
     });
   }
@@ -615,15 +614,15 @@ function updateVisibility() {
   // Control female data points and trend lines
   svg.selectAll(".femaleCorrelation")
     .transition().duration(200)
-    .style("opacity", showFemale ? 1 : 0.6); 
+    .style("opacity", showFemale ? 1 : 0.6);
 
   svg.selectAll(".femaleTrendLine")
     .transition().duration(200)
-    .style("opacity", showFemale ? 0.7 : 0); 
+    .style("opacity", showFemale ? 0.7 : 0);
 
-    // bring to front
+  // bring to front
   if (showMale) {
-    svg.selectAll(".maleCorrelation").each(function() {
+    svg.selectAll(".maleCorrelation").each(function () {
       d3.select(this).raise();
     });
   }
@@ -631,11 +630,11 @@ function updateVisibility() {
   // Control male data points and trend lines
   svg.selectAll(".maleCorrelation")
     .transition().duration(200)
-    .style("opacity", showMale ? 1 : 0.6); 
+    .style("opacity", showMale ? 1 : 0.6);
 
   svg.selectAll(".maleTrendLine")
     .transition().duration(200)
-    .style("opacity", showMale ? 0.7 : 0); 
+    .style("opacity", showMale ? 0.7 : 0);
 
   console.log("Updated visibility");
 }
@@ -661,7 +660,7 @@ function calculateHourlyAverages(data) {
   });
 
   // calculate the average for each hour
-    const result = Object.keys(hourlyAverages).map(hour => {
+  const result = Object.keys(hourlyAverages).map(hour => {
     const dataForHour = hourlyAverages[hour];
     const avg = dataForHour.count > 0 ? d3.mean(dataForHour.values) : 0;
     return { hour: parseInt(hour), value: avg };
@@ -698,14 +697,14 @@ async function createFemalePlots() {
 
   function addLightBars(svg, xScale) {
     let lightPeriods = [];
-    
+
     for (let day = 0; day < 14; day++) {
       let startOn = day * 24 + 12;
-      let endOn = startOn + 12;     
+      let endOn = startOn + 12;
       lightPeriods.push({ start: startOn, end: endOn, color: "yellow" });
 
       let startOff = day * 24;
-      let endOff = startOff + 12;  
+      let endOff = startOff + 12;
       lightPeriods.push({ start: startOff, end: endOff, color: "lightgrey" });
     }
 
@@ -724,12 +723,12 @@ async function createFemalePlots() {
 
   function addEstrusCycleBar(svg, xScale) {
     let estrusPeriods = [];
-    
+
     for (let cycleStart = 24; cycleStart < totalHours; cycleStart += 96) {
       let cycleEnd = cycleStart + 24;
       estrusPeriods.push({ start: cycleStart, end: cycleEnd });
     }
-  
+
     svg.selectAll(".estrus-bar")
       .data(estrusPeriods)
       .enter()
@@ -807,8 +806,8 @@ async function createFemalePlots() {
       .y(d => yScale2(d))
     );
 
-    // add axes labels for the first svg
-    svg1.append("text")
+  // add axes labels for the first svg
+  svg1.append("text")
     .attr("x", -height / 2)
     .attr("y", -margin.left + 12)
     .style("text-anchor", "middle")
@@ -822,32 +821,32 @@ async function createFemalePlots() {
     .text("Hour");
 
   // add title for first svg
+  svg1.append("text")
+    .attr("x", width / 2)
+    .attr("y", -margin.top / 2)
+    .attr("text-anchor", "middle")
+    .style("font-size", "16px")
+    .style("font-weight", "bold")
+    .text("Average Temperature");
+
+  const subtitle1 = [
+    "Average hourly core body temperature (smoothed over 3-hour intervals)",
+    "in female mice (n = 13) over 14 days. Grey and yellow color blocks represent",
+    "lights off and on, respectively. Pink color blocks represent estrus cycle."
+  ];
+
+  const lineHeight = 16;
+  const fontSize = "12px";
+
+  // add plot description
+  subtitle1.forEach((line, index) => {
     svg1.append("text")
       .attr("x", width / 2)
-      .attr("y", -margin.top / 2)
+      .attr("y", height + 60 + index * lineHeight)
       .attr("text-anchor", "middle")
-      .style("font-size", "16px")
-      .style("font-weight", "bold")
-      .text("Average Temperature");
-
-      const subtitle1 = [
-        "Average hourly core body temperature (smoothed over 3-hour intervals)",
-        "in female mice (n = 13) over 14 days. Grey and yellow color blocks represent",
-        "lights off and on, respectively. Pink color blocks represent estrus cycle."
-      ];
-      
-      const lineHeight = 16;
-      const fontSize = "12px";
-      
-      // add plot description
-      subtitle1.forEach((line, index) => {
-        svg1.append("text")
-          .attr("x", width / 2)
-          .attr("y", height + 60 + index * lineHeight)
-          .attr("text-anchor", "middle")
-          .style("font-size", fontSize)
-          .text(line);
-      });
+      .style("font-size", fontSize)
+      .text(line);
+  });
 
   // add axes labels for second svg
   svg2.append("text")
@@ -865,19 +864,19 @@ async function createFemalePlots() {
 
   // add title for second svg
   svg2.append("text")
-  .attr("x", width / 2)
-  .attr("y", -margin.top / 2)
-  .attr("text-anchor", "middle")
-  .style("font-size", "16px")
-  .style("font-weight", "bold")
-  .text("Average Activity");
+    .attr("x", width / 2)
+    .attr("y", -margin.top / 2)
+    .attr("text-anchor", "middle")
+    .style("font-size", "16px")
+    .style("font-weight", "bold")
+    .text("Average Activity");
 
   const subtitle2 = [
     "Average activity level (smoothed over 3-hour intervals) in female",
     "mice (n = 13) over 14 days. Grey and yellow color blocks represent",
     "lights off and on, respectively. Pink color blocks represent estrus cycle."
   ];
-  
+
   // add plot description
   subtitle2.forEach((line, index) => {
     svg2.append("text")
@@ -919,12 +918,12 @@ async function createMalePlots() {
     let lightPeriods = [];
 
     for (let day = 0; day < 14; day++) {
-      let startOn = day * 24 + 12;  
-      let endOn = startOn + 12;     
+      let startOn = day * 24 + 12;
+      let endOn = startOn + 12;
       lightPeriods.push({ start: startOn, end: endOn, color: "yellow" });
 
-      let startOff = day * 24;      
-      let endOff = startOff + 12;   
+      let startOff = day * 24;
+      let endOff = startOff + 12;
       lightPeriods.push({ start: startOff, end: endOff, color: "lightgrey" });
     }
 
@@ -993,8 +992,8 @@ async function createMalePlots() {
       .y(d => yScale2(d))
     );
 
-    // add axes labels for the first svg
-    svg1.append("text")
+  // add axes labels for the first svg
+  svg1.append("text")
     .attr("x", -height / 2)
     .attr("y", -margin.left + 12)
     .style("text-anchor", "middle")
@@ -1009,21 +1008,21 @@ async function createMalePlots() {
 
   // add title for first svg
   svg1.append("text")
-  .attr("x", width / 2)
-  .attr("y", -margin.top / 2)
-  .attr("text-anchor", "middle")
-  .style("font-size", "16px")
-  .style("font-weight", "bold")
-  .text("Average Temperature");
+    .attr("x", width / 2)
+    .attr("y", -margin.top / 2)
+    .attr("text-anchor", "middle")
+    .style("font-size", "16px")
+    .style("font-weight", "bold")
+    .text("Average Temperature");
 
   const subtitle1 = [
     "Average hourly core body temperature (smoothed over 3-hour intervals) in male mice",
     "(n = 13) over 14 days. Grey and yellow color blocks represent lights off and on, respectively."
   ];
-  
+
   const lineHeight = 16;
   const fontSize = "12px";
-  
+
   // add plot description
   subtitle1.forEach((line, index) => {
     svg1.append("text")
@@ -1050,18 +1049,18 @@ async function createMalePlots() {
 
   // add title for second svg
   svg2.append("text")
-  .attr("x", width / 2)
-  .attr("y", -margin.top / 2)
-  .attr("text-anchor", "middle")
-  .style("font-size", "16px")
-  .style("font-weight", "bold")
-  .text("Average Activity");
+    .attr("x", width / 2)
+    .attr("y", -margin.top / 2)
+    .attr("text-anchor", "middle")
+    .style("font-size", "16px")
+    .style("font-weight", "bold")
+    .text("Average Activity");
 
   const subtitle2 = [
     "Average activity level (smoothed over 3-hour intervals) in male mice (n = 13) over",
     "14 days. Grey and yellow color blocks represent lights off and on, respectively."
   ];
-  
+
   // add plot description
   subtitle2.forEach((line, index) => {
     svg2.append("text")
@@ -1087,14 +1086,14 @@ async function createMalePlots() {
 
 // //   await createCorrelationPlot(); 
 
-  // document.getElementById("toggleFemale").checked = false;
-  // document.getElementById("toggleMale").checked = false;
-  // document.getElementById("showLightsOn").checked = true;
-  // document.getElementById("showLightsOff").checked = true;
-  // updateVisibility();
+// document.getElementById("toggleFemale").checked = false;
+// document.getElementById("toggleMale").checked = false;
+// document.getElementById("showLightsOn").checked = true;
+// document.getElementById("showLightsOff").checked = true;
+// updateVisibility();
 
-  // document.getElementById("toggleFemale")?.addEventListener("change", updateVisibility);
-  // document.getElementById("toggleFemale")?.addEventListener("change", createFemalePlots);
-  // document.getElementById("toggleMale")?.addEventListener("change", updateVisibility);
-  // document.getElementById("toggleMale")?.addEventListener("change", createMalePlots);
+// document.getElementById("toggleFemale")?.addEventListener("change", updateVisibility);
+// document.getElementById("toggleFemale")?.addEventListener("change", createFemalePlots);
+// document.getElementById("toggleMale")?.addEventListener("change", updateVisibility);
+// document.getElementById("toggleMale")?.addEventListener("change", createMalePlots);
 // // }); 
