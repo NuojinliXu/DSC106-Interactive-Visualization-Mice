@@ -37,7 +37,6 @@ padding-bottom: 0.1em;
 font-weight: bold;
 }
 
-
 h3 {
   font-size: 24px;
   font-weight: bold;
@@ -186,7 +185,7 @@ h2 {
   font-family: Arial, sans-serif; 
 }
 
-p {
+.write-up p {
   margin: 15px; 
   padding: 40px; 
   line-height: 1.6; 
