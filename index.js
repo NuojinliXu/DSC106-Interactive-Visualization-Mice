@@ -175,8 +175,8 @@ function calculateCorrelations() {
   }
 
   // Compute daily correlations based on selection
-  let femaleDailyCorrelations = calculateDailyCorrelations(femaleCorrelations, totalDays, minutesPerPeriod);
-  let maleDailyCorrelations = calculateDailyCorrelations(maleCorrelations, totalDays, minutesPerPeriod);
+  femaleDailyCorrelations = calculateDailyCorrelations(femaleCorrelations, totalDays, minutesPerPeriod);
+  maleDailyCorrelations = calculateDailyCorrelations(maleCorrelations, totalDays, minutesPerPeriod);
 
   updatePlot(femaleDailyCorrelations, maleDailyCorrelations);
 }
@@ -576,7 +576,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   //       .style("opacity", 0.6);
   //   });
 
-// //curve
+//curve
 // const femaleTrendLine = d3.line()
 //   .x((d, i) => xScale(i + 1))
 //   .y(d => yScale(d))
@@ -652,17 +652,17 @@ function updateSelectionCount(){
 }
 function mean(arr) {
   if (arr.length === 0) return NaN; 
-  return arr.reduce((sum, val) => sum + val, 0) / arr.length;
+  return (arr.reduce((sum, val) => sum + val, 0) / arr.length).toFixed(3);
 }
 
 function updateSelectionMean() {
   const meanElement = document.getElementById('selectionMean');
 
   const femaleSelectedCommits = brushSelection
-    ? femaleDailyCorrelations.filter((d,idx) => isSelected(idx, d))
+    ? femaleDailyCorrelations.filter((d,idx) => isSelected(d, idx))
     : [];
   const maleSelectedCommits = brushSelection
-    ? maleDailyCorrelations.filter((d,idx) => isSelected(idx, d))
+    ? maleDailyCorrelations.filter((d,idx) => isSelected(d, idx))
     : [];
   if ((femaleSelectedCommits.length === 0) && (maleDailyCorrelations.length === 0)){
     meanElement.innerHTML = ``;
@@ -672,6 +672,7 @@ function updateSelectionMean() {
   Total Mean: ${mean(femaleSelectedCommits.concat(maleSelectedCommits))}`;
 
 }
+
 function updateVisibility() {
   const showFemale = document.getElementById("toggleFemale").checked;
   const showMale = document.getElementById("toggleMale").checked;
