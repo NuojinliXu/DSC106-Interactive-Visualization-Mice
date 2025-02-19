@@ -123,9 +123,8 @@ p {
   color: black;
   background-color: white;
   border: 1px solid black;
-  padding: 5px;
   border-radius: 5px;
-  position: relative;
+  position: absolute;
   visibility: hidden;
 }
 

@@ -211,11 +211,9 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
       .style("opacity", currentGenderSelection === "female" ? 1 : 0.6)
       .on("mouseover", function (event, d) {
         tooltip.style("visibility", "visible")
-          .text(`${d.toFixed(3)}`);
-      })
-      .on("mousemove", function (event) {
-        tooltip.style("top", `${event.clientY - svgRect.top + 30}px` )
-          .style("left", `${event.clientX- svgRect.left + 30}px`);
+          .text(`${d.toFixed(3)}`)
+          .style("top", `${event.clientY - svgRect.top + 40}px` )
+          .style("left", `${event.clientX -svgRect.left + 300}px`);
       })
       .on("mouseout", function () {
         tooltip.style("visibility", "hidden");
@@ -243,8 +241,8 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
       .on("mouseover", function (event, d) {
         tooltip.style("visibility", "visible")
           .text(`${d.toFixed(3)}`)
-          .style("top", `${event.clientY- svgRect.top + 30}px `)
-          .style("left", `${event.clientX- svgRect.left + 30}px`);
+          .style("top", `${event.clientY - svgRect.top + 40}px `)
+          .style("left", `${event.clientX- svgRect.left + 300}px`);
       })
       .on("mouseout", function () {
         tooltip.style("visibility", "hidden");
@@ -356,7 +354,8 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
     .attr("stroke", "pink")
     .attr("stroke-width", 2)
     .attr("d", trendline)
-    .style("opacity", 0.7);
+    .style("opacity", 0.7)
+    .lower();
 
   // Add male trendline
   svg.append("path")
@@ -366,7 +365,8 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
     .attr("stroke", "lightblue")
     .attr("stroke-width", 2)
     .attr("d", trendline)
-    .style("opacity", 0.7);
+    .style("opacity", 0.7)
+    .lower();
 }
 
 
