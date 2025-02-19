@@ -197,6 +197,7 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
 
 
   const yScale = d3.scaleLinear().domain([-1, 1]).range([height, 0]);
+  const svgRect = d3.select("svg").node().getBoundingClientRect();
 
   // Update female circles
   const femaleCircles = svg.selectAll(".femaleCorrelation")
@@ -216,8 +217,8 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
           .text(`${d.toFixed(3)}`);
       })
       .on("mousemove", function (event) {
-        tooltip.style("top", (event.pageY - 10) + "px")
-          .style("left", (event.pageX + 10) + "px");
+        tooltip.style("top", `${event.clientY - svgRect.top + 30}px` )
+          .style("left", `${event.clientX- svgRect.left + 30}px`);
       })
       .on("mouseout", function () {
         tooltip.style("visibility", "hidden");
@@ -234,6 +235,7 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
   const maleCircles = svg.selectAll(".maleCorrelation")
     .data(maleDailyCorrelations);
 
+  
   maleCircles.join(
     enter => enter.append("circle")
       .attr("class", "maleCorrelation")
@@ -245,11 +247,9 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
       .style("opacity", currentGenderSelection === "male" ? 1 : 0.6)
       .on("mouseover", function (event, d) {
         tooltip.style("visibility", "visible")
-          .text(`${d.toFixed(3)}`);
-      })
-      .on("mousemove", function (event) {
-        tooltip.style("top", (event.pageY - 10) + "px")
-          .style("left", (event.pageX + 10) + "px");
+          .text(`${d.toFixed(3)}`)
+          .style("top", `${event.clientY- svgRect.top + 30}px `)
+          .style("left", `${event.clientX- svgRect.left + 30}px`);
       })
       .on("mouseout", function () {
         tooltip.style("visibility", "hidden");
@@ -576,35 +576,34 @@ document.addEventListener("DOMContentLoaded", async () => {
   //       .style("opacity", 0.6);
   //   });
 
-//curve
-// const femaleTrendLine = d3.line()
-//   .x((d, i) => xScale(i + 1))
-//   .y(d => yScale(d))
-//   .curve(d3.curveBasis); // Smooth the curve
+const femaleTrendLine = d3.line()
+  .x((d, i) => xScale(i + 1))
+  .y(d => yScale(d))
+  .curve(d3.curveBasis); // Smooth the curve
 
-// const maleTrendLine = d3.line()
-//   .x((d, i) => xScale(i + 1))
-//   .y(d => yScale(d))
-//   .curve(d3.curveBasis);
+const maleTrendLine = d3.line()
+  .x((d, i) => xScale(i + 1))
+  .y(d => yScale(d))
+  .curve(d3.curveBasis);
 
-// // Draw a trend line for female mice
-// svg.append("path")
-//   .datum(femaleDailyCorrelations)
-//   .attr("class", "femaleTrendLine") 
-//   .attr("fill", "none")
-//   .attr("stroke", "pink")
-//   .attr("stroke-width", 2)
-//   .attr("d", femaleTrendLine)
-//   .style("opacity", 0.7);
+// Draw a trend line for female mice
+svg.append("path")
+  .datum(femaleDailyCorrelations)
+  .attr("class", "femaleTrendLine") 
+  .attr("fill", "none")
+  .attr("stroke", "pink")
+  .attr("stroke-width", 2)
+  .attr("d", femaleTrendLine)
+  .style("opacity", 0.7);
 
-// svg.append("path")
-//   .datum(maleDailyCorrelations)
-//   .attr("class", "maleTrendLine") 
-//   .attr("fill", "none")
-//   .attr("stroke", "lightblue")
-//   .attr("stroke-width", 2)
-//   .attr("d", maleTrendLine)
-//   .style("opacity", 0.7);
+svg.append("path")
+  .datum(maleDailyCorrelations)
+  .attr("class", "maleTrendLine") 
+  .attr("fill", "none")
+  .attr("stroke", "lightblue")
+  .attr("stroke-width", 2)
+  .attr("d", maleTrendLine)
+  .style("opacity", 0.7);
 
 brushSelector();
 
