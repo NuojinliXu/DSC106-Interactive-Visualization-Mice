@@ -10,12 +10,17 @@
     </head>
     <body class="write-up">
         <h3>Project 3 Write-Up</h3>
+        <br></br>
+        <h2>Design Rationale</h2>
         <p>The goal of our visualization is to effectively convey the relationship between core body temperature and activity levels in male versus female mice, while highlighting the impact of circadian rhythms and the estrus cycle in females. For the correlation plot, we chose a scatter plot with trend lines to represent the average daily Pearson correlation coefficients between temperature and activity, which depicts how strong of an association there is for these measurements for female and male mice over time. Data points are color-coded: pink for females and blue for males, aligning with conventional color associations to help users quickly identify sex differences in correlation trends. Additionally, hovering over data points reveals tooltips displaying the correlation coefficients for specific points, while hovering over the legend allows users to toggle male or female data visibility, enhancing interactivity. The brush tool allows users to highlight and select multiple specific points at once, and also displays average female, male, and total correlation coefficients under the plot. The night/day toggle for the correlation plot allows users to filter correlations based on circadian cycles, where “night” corresponds to lights off and “day” corresponds to lights on.
             <br></br>
             For the time-series plots, we created two separate line charts showing smoothed hourly average core body temperature and activity levels over 14 days for both male and female mice. This separation prevents overlap clutter and allows for clear comparisons, and smoothed hourly averages allow for clean plots while maintaining important circadian fluctuations in activity. Additionally, we added background color overlays (yellow and grey bars indicate light and dark cycles, respectively) helping users understand the influence of circadian rhythms, as these colors are intuitive for visualizing day versus night. Pink bars on the female plots highlight estrus cycle periods, corresponding to sex-specific conditions and alluding to hormonal fluctuations.
             <br></br>
             We considered alternative designs, such as overlaying male and female time-series plots or using stacked bar charts to compare daily activity levels. However, these approaches either reduced readability or failed to capture temporal patterns effectively, often over-generalizing daily trends and overlooking fluctuations in day and night measurements. Ultimately, we selected line plots and scatter plots with trend lines as they best represented both time-dependent relationships and sex-specific differences.</p>
-        <p>This project was developed collaboratively, with each team member responsible for the specific tasks listed below:
+            
+
+        <h2>Development Process</h2>
+            <p>This project was developed collaboratively, with each team member responsible for the specific tasks listed below:
             <br></br>
             <b>Yajing Fang</b>: implemented interaction features (trendlines and toggle buttons), designed CSS style, led write-up.
             <br></br>
@@ -27,8 +32,8 @@
             <br></br>
             Our development process started with preprocessing the dataset, transforming minute-level data into hour- and day-level computations (e.g. averages and correlations). Next, using D3.js, we built the correlation plot and time-series visualizations for males and females. We then integrated interactive features such as tooltips, brushes, and toggles to enhance user engagement.
             One of the biggest challenges was balancing accuracy with readability. With minute-level data spanning 14 days (20160 rows of data per file), initial plots looked noisy and difficult to interpret. To address this, we chose to aggregate data into hourly averages and apply smoothing functions. Additionally, finding ways to allow interaction was difficult at first, but this problem was solved by brainstorming and trial-and-error.</p>
-        <p>
-            The project took approximately 15 hours to complete. The breakdown of time spent on each component is as follows:
+        
+            <p>The project took approximately 15 hours to complete. The breakdown of time spent on each component is as follows:
             <br></br>
             <b>Correlation Plot</b>: 5 hours
             <br></br>
