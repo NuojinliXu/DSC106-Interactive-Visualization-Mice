@@ -886,8 +886,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.getElementById("toggleFemale").checked = false;
   document.getElementById("toggleMale").checked = false;
-  document.getElementById("showLightsOn").checked = false;
-  document.getElementById("showLightsOff").checked = false;
+  document.getElementById("showLightsOn").checked = true;
+  document.getElementById("showLightsOff").checked = true;
   updateVisibility();
 
   document.getElementById("toggleFemale")?.addEventListener("change", updateVisibility);
