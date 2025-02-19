@@ -498,21 +498,21 @@ async function createFemalePlots() {
   const actFiles = ["Mouse_Data_Student_Copy.xlsx - Fem Act.csv"];
   const labels = ["f"];
   let temperatureData = await loadTemperatureData(tempFiles, labels);
-  console.log(temperatureData);
+  console.log("temp data:", temperatureData);
   let activityData = await loadActivityData(actFiles, labels);
-  console.log(activityData);
+  console.log("act data:", activityData);
 
   // process the temperature and activity data
   const processedTempData = calculateHourlyAveragesFemale(temperatureData);
   const processedActData = calculateHourlyAveragesFemale(activityData);
 
-  console.log(processedTempData, processedActData);
+  console.log("processed data:", processedTempData, processedActData);
 
   // apply 3-hour moving average to smooth data
   const smoothedTempData = smoothData(processedTempData.map(d => d.value), 3);
   const smoothedActData = smoothData(processedActData.map(d => d.value), 3);
 
-  console.log(smoothedTempData, smoothedActData);
+  console.log("smoothed data:", smoothedTempData, smoothedActData);
 
   // create container for axes (side by side)
   const axesContainer = d3.select("#female-plot");
@@ -626,7 +626,7 @@ async function createFemalePlots() {
 let malePlotCreated = false;
 
 async function createMalePlots() {
-  // check if the female plot has already been created
+  // check if the male plot has already been created
   if (malePlotCreated) {
     return; // skip creation if the plot is already created
   }
@@ -636,21 +636,21 @@ async function createMalePlots() {
   const actFiles = ["Mouse_Data_Student_Copy.xlsx - Male Act.csv"];
   const labels = ["m"];
   let temperatureData = await loadTemperatureData(tempFiles, labels);
-  console.log(temperatureData);
+  console.log("temp data:", temperatureData);
   let activityData = await loadActivityData(actFiles, labels);
-  console.log(activityData);
+  console.log("act data:", activityData);
 
   // process the temperature and activity data
   const processedTempData = calculateHourlyAveragesMale(temperatureData);
   const processedActData = calculateHourlyAveragesMale(activityData);
 
-  console.log(processedTempData, processedActData);
+  console.log("processed data:", processedTempData, processedActData);
 
   // apply 3-hour moving average to smooth data
   const smoothedTempData = smoothData(processedTempData.map(d => d.value), 3);
   const smoothedActData = smoothData(processedActData.map(d => d.value), 3);
 
-  console.log(smoothedTempData, smoothedActData);
+  console.log("smoothed data:", smoothedTempData, smoothedActData);
 
   // create container for axes (side by side)
   const axesContainer = d3.select("#male-plot");
@@ -765,7 +765,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   tooltip = d3.select("body").append("div")
       .attr("class", "tooltip")
       .style("position", "absolute")
-      .style("background", "rgba(0, 0, 0, 0.8)")
+      .style("background", "gray")
       .style("color", "#fff")
       .style("padding", "5px")
       .style("border-radius", "3px")
