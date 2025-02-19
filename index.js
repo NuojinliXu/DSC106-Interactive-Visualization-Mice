@@ -182,7 +182,7 @@ function calculateCorrelations() {
 }
 
 function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
-  // tooltip
+  // Tooltip
   const tooltip = d3.select("#chart").append("div")
     .attr("class", "tooltip")
     .style("position", "absolute")
@@ -194,8 +194,6 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
     .style("pointer-events", "none");
 
   const svg = d3.select("#chart svg");
-
-
   const yScale = d3.scaleLinear().domain([-1, 1]).range([height, 0]);
   const svgRect = d3.select("svg").node().getBoundingClientRect();
 
@@ -210,7 +208,6 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
       .attr("cy", d => yScale(d))
       .attr("r", 5)
       .style("fill", "pink")
-      .style("opacity", 0.6)
       .style("opacity", currentGenderSelection === "female" ? 1 : 0.6)
       .on("mouseover", function (event, d) {
         tooltip.style("visibility", "visible")
@@ -230,7 +227,6 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
     exit => exit.remove()
   );
 
-
   // Update male circles
   const maleCircles = svg.selectAll(".maleCorrelation")
     .data(maleDailyCorrelations);
@@ -243,7 +239,6 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
       .attr("cy", d => yScale(d))
       .attr("r", 5)
       .style("fill", "lightblue")
-      .style("opacity", 0.6)
       .style("opacity", currentGenderSelection === "male" ? 1 : 0.6)
       .on("mouseover", function (event, d) {
         tooltip.style("visibility", "visible")
@@ -260,90 +255,120 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
       .style("opacity", currentGenderSelection === "male" ? 1 : 0.6),
     exit => exit.remove()
   );
+
   // Create legend
-const legendGroup = svg.append("g").attr("class", "legend");
+  const legendGroup = svg.append("g").attr("class", "legend");
 
-// Female legend
-legendGroup.append("circle")
-  .attr("cx", 786)
-  .attr("cy", 295)
-  .attr("r", 6)
-  .style("fill", "pink")
-  .on("mouseover", function() {
-    svg.selectAll(".femaleCorrelation")
-      .transition().duration(200)
-      .style("opacity", 1);
-    svg.selectAll(".maleCorrelation")
-      .transition().duration(200)
-      .style("opacity", 0);
-  })
-  .on("mouseout", function() {
-    svg.selectAll(".femaleCorrelation, .maleCorrelation")
-      .transition().duration(200)
-      .style("opacity", 0.6);
-  });
+  // Female legend
+  legendGroup.append("circle")
+    .attr("cx", 786)
+    .attr("cy", 295)
+    .attr("r", 6)
+    .style("fill", "pink")
+    .on("mouseover", function() {
+      svg.selectAll(".femaleCorrelation, .femaleTrend") // Include trendline
+        .transition().duration(200)
+        .style("opacity", 1);
+      svg.selectAll(".maleCorrelation, .maleTrend")
+        .transition().duration(200)
+        .style("opacity", 0);
+    })
+    .on("mouseout", function() {
+      svg.selectAll(".femaleCorrelation, .femaleTrend, .maleCorrelation, .maleTrend")
+        .transition().duration(200)
+        .style("opacity", 0.6);
+    });
 
-legendGroup.append("text")
-  .attr("x", 800)
-  .attr("y", 300)
-  .text("Female")
-  .style("cursor", "pointer")
-  .style("fill", "black")
-  .on("mouseover", function() {
-    svg.selectAll(".femaleCorrelation")
-      .transition().duration(200)
-      .style("opacity", 1);
-    svg.selectAll(".maleCorrelation")
-      .transition().duration(200)
-      .style("opacity", 0);
-  })
-  .on("mouseout", function() {
-    svg.selectAll(".femaleCorrelation, .maleCorrelation")
-      .transition().duration(200)
-      .style("opacity", 0.6);
-  });
+  legendGroup.append("text")
+    .attr("x", 800)
+    .attr("y", 300)
+    .text("Female")
+    .style("cursor", "pointer")
+    .style("fill", "black")
+    .on("mouseover", function() {
+      svg.selectAll(".femaleCorrelation, .femaleTrend")
+        .transition().duration(200)
+        .style("opacity", 1);
+      svg.selectAll(".maleCorrelation, .maleTrend")
+        .transition().duration(200)
+        .style("opacity", 0);
+    })
+    .on("mouseout", function() {
+      svg.selectAll(".femaleCorrelation, .femaleTrend, .maleCorrelation, .maleTrend")
+        .transition().duration(200)
+        .style("opacity", 0.6);
+    });
 
-// Male legend
-legendGroup.append("circle")
-  .attr("cx", 786)
-  .attr("cy", 320)
-  .attr("r", 6)
-  .style("fill", "lightblue")
-  .on("mouseover", function() {
-    svg.selectAll(".maleCorrelation")
-      .transition().duration(200)
-      .style("opacity", 1);
-    svg.selectAll(".femaleCorrelation")
-      .transition().duration(200)
-      .style("opacity", 0);
-  })
-  .on("mouseout", function() {
-    svg.selectAll(".femaleCorrelation, .maleCorrelation")
-      .transition().duration(200)
-      .style("opacity", 0.6);
-  });
+  // Male legend
+  legendGroup.append("circle")
+    .attr("cx", 786)
+    .attr("cy", 320)
+    .attr("r", 6)
+    .style("fill", "lightblue")
+    .on("mouseover", function() {
+      svg.selectAll(".maleCorrelation, .maleTrend")
+        .transition().duration(200)
+        .style("opacity", 1);
+      svg.selectAll(".femaleCorrelation, .femaleTrend")
+        .transition().duration(200)
+        .style("opacity", 0);
+    })
+    .on("mouseout", function() {
+      svg.selectAll(".femaleCorrelation, .femaleTrend, .maleCorrelation, .maleTrend")
+        .transition().duration(200)
+        .style("opacity", 0.6);
+    });
 
-legendGroup.append("text")
-  .attr("x", 800)
-  .attr("y", 325)
-  .text("Male")
-  .style("cursor", "pointer")
-  .style("fill", "black")
-  .on("mouseover", function() {
-    svg.selectAll(".maleCorrelation")
-      .transition().duration(200)
-      .style("opacity", 1);
-    svg.selectAll(".femaleCorrelation")
-      .transition().duration(200)
-      .style("opacity", 0);
-  })
-  .on("mouseout", function() {
-    svg.selectAll(".femaleCorrelation, .maleCorrelation")
-      .transition().duration(200)
-      .style("opacity", 0.6);
-  });
+  legendGroup.append("text")
+    .attr("x", 800)
+    .attr("y", 325)
+    .text("Male")
+    .style("cursor", "pointer")
+    .style("fill", "black")
+    .on("mouseover", function() {
+      svg.selectAll(".maleCorrelation, .maleTrend")
+        .transition().duration(200)
+        .style("opacity", 1);
+      svg.selectAll(".femaleCorrelation, .femaleTrend")
+        .transition().duration(200)
+        .style("opacity", 0);
+    })
+    .on("mouseout", function() {
+      svg.selectAll(".femaleCorrelation, .femaleTrend, .maleCorrelation, .maleTrend")
+        .transition().duration(200)
+        .style("opacity", 0.6);
+    });
 
+  // Define trendline function
+  const trendline = d3.line()
+    .x((d, i) => xScale(i + 1)) // Use xScale for day index
+    .y(d => yScale(d)) // Map correlation to y
+    .curve(d3.curveBasis); // Smooth the curve
+
+  // Remove previous trendlines before adding new ones
+  svg.selectAll(".trendline").remove();
+
+  // Add female trendline
+  svg.append("path")
+    .datum(femaleDailyCorrelations) // Bind data
+    .attr("class", "trendline femaleTrend")
+    .attr("fill", "none")
+    .attr("stroke", "pink")
+    .attr("stroke-width", 2)
+    .attr("d", trendline)
+    .style("opacity", 0.7);
+
+  // Add male trendline
+  svg.append("path")
+    .datum(maleDailyCorrelations)
+    .attr("class", "trendline maleTrend")
+    .attr("fill", "none")
+    .attr("stroke", "lightblue")
+    .attr("stroke-width", 2)
+    .attr("d", trendline)
+    .style("opacity", 0.7);
 }
+
 
 
 // create svg
