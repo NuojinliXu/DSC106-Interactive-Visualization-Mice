@@ -156,8 +156,7 @@ const svg = d3.select("#chart").append("svg")
   .attr("width", width + margin.left + margin.right)
   .attr("height", height + margin.top + margin.bottom)
   .attr("class", "correlationPlot")
-  .append("g")
-  .attr("transform", `translate(${margin.left},${margin.top})`);
+  .attr("viewBox", "-50 -50 1000 500");
 // set up scales
 xScale = d3.scaleLinear()
   .domain([0, 14])
@@ -165,8 +164,11 @@ xScale = d3.scaleLinear()
 
 const xAxis = svg.append("g")
   .attr("class", "x-axis")
-  .attr("transform", `translate(0, ${height})`)
-  .call(d3.axisBottom(xScale));
+  .attr("transform", `translate(${margin.left}, ${height})`)
+
+const yAxis = svg.append('g')
+  .attr("class", "y-axis")
+  .attr("transform", `translate(${margin.left},${margin.top})`);
 
 yScale = d3.scaleLinear()
   .domain([-1, 1])
