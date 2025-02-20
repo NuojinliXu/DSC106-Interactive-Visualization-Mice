@@ -209,11 +209,24 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
       .attr("r", 5)
       .style("fill", "pink")
       .style("opacity", currentGenderSelection === "female" ? 1 : 0.6)
-      .on("mouseover", function (event, d) {
+      .on("mouseover", function (event, d, i) {
+        let gender = d3.select(this).attr("class").includes("female") ? "Female" : "Male";
+        let day = i + 1;
+        if (isNaN(day)) {
+          day = "Unknown";
+        }
+      
+        
+        const x = event.offsetX;
+        const y = event.offsetY;
+      
+        
         tooltip.style("visibility", "visible")
-          .text(`${d.toFixed(3)}`)
-          .style("top", `${event.pageY - svgRect.top + 20}px `)
-          .style("left", `${event.pageX- svgRect.left + 150}px`);
+          .html(`<b>Correlation:</b> ${d.toFixed(3)}<br>
+                 <b>Gender:</b> ${gender}<br>
+                 `)
+          .style("top", `${y - 10}px`)  
+          .style("left", `${x - 150}px`); 
       })
       .on("mouseout", function () {
         tooltip.style("visibility", "hidden");
@@ -238,11 +251,23 @@ function updatePlot(femaleDailyCorrelations, maleDailyCorrelations) {
       .attr("r", 5)
       .style("fill", "lightblue")
       .style("opacity", currentGenderSelection === "male" ? 1 : 0.6)
-      .on("mouseover", function (event, d) {
+      .on("mouseover", function (event, d, i) {
+        let gender = d3.select(this).attr("class").includes("female") ? "Female" : "Male";
+        let day = i + 1;
+        if (isNaN(day)) {
+          day = "Unknown";
+        }
+      
+        const x = event.offsetX;
+        const y = event.offsetY;
+      
+     
         tooltip.style("visibility", "visible")
-          .text(`${d.toFixed(3)}`)
-          .style("top", `${event.pageY - svgRect.top + 20}px `)
-          .style("left", `${event.pageX- svgRect.left + 150}px`);
+          .html(`<b>Correlation:</b> ${d.toFixed(3)}<br>
+                 <b>Gender:</b> ${gender}<br>
+                 `)
+          .style("top", `${y - 10}px`)  
+          .style("left", `${x - 150}px`); 
       })
       .on("mouseout", function () {
         tooltip.style("visibility", "hidden");
