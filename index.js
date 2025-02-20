@@ -432,6 +432,9 @@ document.getElementById("dataToggle").addEventListener("change", function () {
   currentDataSelection = this.value;
   console.log("Data selection changed to:", currentDataSelection);
   calculateCorrelations();
+  updateSelection();
+  updateSelectionCount();
+  updateSelectionMean();
 });
 
 // Load data and initialize plot
